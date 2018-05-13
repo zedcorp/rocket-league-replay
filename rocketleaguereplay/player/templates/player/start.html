@@ -1,0 +1,323 @@
+<html>
+<header><title>This is title</title></header>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+</head>
+<body>
+    <div style="width:400px;text-align: center;">
+        <span id= "blue-score" class="badge badge-primary">0</span>
+        <span id= "red-score" class="badge badge-danger">0</span>
+    </div>
+    <div>
+        <canvas id="canvas" width="400" height="600"> </canvas>
+    </div>
+    <form name="menu">
+        <div style="cursor:pointer; width:100%; background-color:grey;" onclick="setProgress(event)">
+            <div id="prog" style="width:0; height:20px; background-color:blue;">
+            </div>
+        </div>
+        <div class="form-group">
+            <button id="pause-button" type="button" class="btn btn-primary" onclick="togglePause(event)">Pause</button>
+        </div>
+        <div class="form-group">
+            <input type="radio" id="fps3"
+             name="fps" value="3">
+            <label for="fps3">3</label>
+
+            <input type="radio" id="fps5"
+             name="fps" value="5">
+            <label for="fps5">5</label>
+
+            <input type="radio" id="fps10"
+             name="fps" value="10">
+            <label for="fps10">10</label>
+
+            <input type="radio" id="fps20"
+             name="fps" value="20">
+            <label for="fps20">20</label>
+
+            <input type="radio" id="fps60"
+             name="fps" value="60" checked>
+            <label for="fps60">60</label>
+        </div>
+    </form>
+    <table id="car-table">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+var carLength = 20,
+    carWidth = 10,
+    ballRadius = 5,
+    fps = 60,
+    zRatio = 8,
+    colours = ['red', 'yellow', 'orange', 'green', 'blue', 'purple'],
+    blueTeamSize = 0,
+    redTeamSize = 0,
+    cars = {},
+    pause = false,
+    index = 0,
+    totalFrames = 0;
+
+var rad = document.menu.fps;
+for(var i = 0; i < rad.length; i++) {
+    rad[i].onclick = function() {
+        fps = this.value;
+    };
+}
+
+function togglePause(event) {
+    pause = !pause;
+    event.target.textContent = pause ? 'Play' : 'Pause';
+}
+
+var request = new XMLHttpRequest();
+request.open("GET", "{{ data_url }}", false);
+request.send(null);
+
+var frames = JSON.parse(request.responseText);
+totalFrames = frames.length;
+
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+function line(xs, ys, xe, ye) {
+    ctx.lineTo(xe, ye);
+    xs = xe;
+    ys = ye;
+}
+
+var xs = [];
+var ys = [];
+var zs = [];
+var players = {};
+
+function addLoc(loc) {
+    var x = loc.x;
+    var y = loc.y;
+    var z = loc.z;
+    if (x != undefined) {
+        xs.push(x);
+    }
+    if (y != undefined) {
+        ys.push(y);
+    }
+    if (z != undefined) {
+        zs.push(z);
+    }
+}
+
+for (var frame of frames) {
+    for (var carId in frame.cars) {
+        addLoc(frame.cars[carId].loc);
+    }
+    addLoc(frame.ball.loc);
+
+    for (var carId in frame.cars) {
+        if (!(carId in cars)) {
+            var team;
+            if (frame.cars[carId].loc.y > 0) {
+                team = 'red';
+                redTeamSize++;
+            } else {
+                team = 'blue';
+                blueTeamSize++;
+            }
+            cars[carId] = {
+                id: carId,
+        name: frame.cars[carId].name,
+                colour: (team == 'red') ? redTeamSize - 1 : blueTeamSize + 2,
+                team: team,
+                countOwnSide: 0,
+                countOpponentSide: 0,
+                boost: 0
+            };
+        }
+    }
+}
+
+var xRange = Math.max( ...xs ) - Math.min( ...xs );
+var yRange = Math.max( ...ys ) - Math.min( ...ys );
+var zRange = Math.max( ...zs ) - Math.min( ...zs );
+
+function getScaledPos(loc) {
+    return {
+        x: Math.floor((loc.x * canvas.width / xRange) + (canvas.width / 2)),
+        y: Math.floor((loc.y * canvas.height / yRange) + (canvas.height / 2)),
+        z: 1 + (loc.z * zRatio / zRange)
+    };
+}
+
+function drawCar(carId, car) {
+    ctx.save();
+
+    var scaledPos = getScaledPos(car.loc);
+    var x = scaledPos.x;
+    var y = scaledPos.y;
+    var angle = Math.atan2(car.lin_vel.y, car.lin_vel.x) - (Math.PI / 2);
+
+    ctx.translate(x, y);
+    
+    ctx.rotate(angle);
+
+    ctx.scale(scaledPos.z, scaledPos.z);
+
+    ctx.fillStyle = colours[cars[carId].colour];
+    ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
+
+    ctx.restore();
+}
+
+function drawBall(ball) {
+    ctx.save();
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    var scaledPos = getScaledPos(ball.loc);
+    var x = scaledPos.x;
+    var y = scaledPos.y;
+    var radius = ballRadius * scaledPos.z;
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function updateScore(frame) {
+    document.getElementById('blue-score').textContent = frame.scoreboard.team0;
+    document.getElementById('red-score').textContent = frame.scoreboard.team1;
+}
+
+function clear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+var tbl  = document.getElementById('car-table');
+
+tbl.classList.add("table");
+tbl.classList.add("table-striped");
+
+var header = tbl.createTHead();
+var th = header.insertRow();
+th.setAttribute("scope", "col");
+th.classList.add("thead-dark");
+var headers = ['Player', 'Team', 'Defense', 'Offense', 'Boost'];
+for(var i = 0; i < headers.length; i++) {
+    var td = th.insertCell();
+    td.appendChild(document.createTextNode(headers[i]));
+}
+
+var tBody = tbl.tBodies[0];
+
+for (var carId in cars) {
+    var car = cars[carId];
+    var row = tBody.insertRow();
+    var playerName = row.insertCell();
+    playerName.appendChild(document.createTextNode(car.name));
+    playerName.style['background-color'] = colours[car.colour];
+    var team = row.insertCell();
+    team.appendChild(document.createTextNode(car.team));
+    var defense = row.insertCell();
+    defense.appendChild(document.createTextNode(car.countOwnSide));
+    var offense = row.insertCell();
+    offense.appendChild(document.createTextNode(car.countOpponentSide));
+    var boost = row.insertCell();
+    boost.id = carId + '-boost';
+    boost.appendChild(document.createTextNode(car.boost));
+}
+
+document.body.appendChild(tbl);
+
+
+
+function updateCar(savedCar, frameCar) {
+    if (frameCar.loc.y > 0) {
+        if (savedCar.team == 'red') {
+            savedCar.countOwnSide++;
+        } else {
+            savedCar.countOpponentSide++;
+        }
+    } else {
+        if (savedCar.team == 'red') {
+            savedCar.countOpponentSide++;
+        } else {
+            savedCar.countOwnSide++;
+        }
+    }
+    savedCar.boost = frameCar.boost;
+}
+
+function updateTable(frame) {
+    for (var carId in cars) {
+        var boost = cars[carId].boost * 100;
+        var boostCell = document.getElementById(carId + '-boost');
+        var colorClass;
+        if (boost < 25) {
+            colorClass = 'bg-danger';
+        } else if (boost < 50) {
+            colorClass = 'bg-warning';
+        } else if (boost < 75) {
+            colorClass = 'bg-info';
+        } else {
+            colorClass = 'bg-success';
+        }
+        if (boostCell != null) {
+            boostCell.innerHTML = '<div class="progress"><div class="progress-bar ' + colorClass + '" style="width: ' + boost + '%"role="progressbar" aria-valuenow="' + boost + '" aria-valuemin="0" aria-valuemax="100">' + Math.floor(boost) + '%</div></div>';
+        }
+    }
+}
+
+function updateProgress() {
+    var prog = document.getElementById('prog');
+    var done = (index / totalFrames) * 100;
+    var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+    prog.style.width = Math.floor((index / totalFrames) * width);
+}
+
+function setProgress(event) {
+    var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+    index = Math.floor(event.clientX * totalFrames / width);
+}
+
+function draw(frames) {
+    var frame = frames[index];
+    clear();
+    if (index >= frames.length) {
+        return;
+    }
+    if(index == 0) {
+        console.log(frame);
+    }
+    for (var carId in frame.cars) {
+        var car = frame.cars[carId];
+        drawCar(carId, car);
+        updateCar(cars[carId], frame.cars[carId]);
+    }
+    
+    drawBall(frame.ball);
+    
+    updateScore(frame);
+
+    updateTable(frame);
+
+    updateProgress();
+
+    if (!pause) {
+        index += 1;
+    }
+    setTimeout(draw.bind({}, frames), 1000 / fps);
+}
+
+draw(frames);
+</script>
+</html>
