@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
+from django.core import serializers
 
 from player.conf import PlayerConf
 from player.parser.data.data_loader import load_data
@@ -17,7 +18,14 @@ settings = PlayerConf()
 
 # default view
 def index(request):
-    return HttpResponse("retert")
+  
+    return render(request, 'player/userlist.html')
+
+
+def users(request):
+    users = RlUser.objects.all()
+    son_serialized_objects = serializers.serialize("json", users)
+    return HttpResponse(son_serialized_objects)
 
 def replay(request, file):
     fs = FileSystemStorage()
@@ -84,8 +92,17 @@ def upload(request):
          
           stats = get_stats()
           
+          match = RlMatch.objects.get_or_create(
+            scoreblue = stats['blueteamscore'],
+            scorered = stats['redteamscore'],
+            starttime = stats['starttime'],
+            duration = stats['duration'],
+            rlmatchid = stats['matchid'])
+                    
           for player in stats['playerstats'][0]:
-            RlPlayer.objects.create(onlineid=str(player['OnlineID']), 
+            user = RlUser.objects.get_or_create(onlineid=str(player['OnlineID']), name=player['Name'])
+            RlPlayer.objects.get_or_create(userid=user[0], 
+                         idmatch = match[0],
                          name=player['Name'], 
                          assist = player['Assists'], 
                          goal = player['Goals'], 
@@ -93,17 +110,11 @@ def upload(request):
                          platform = player['Platform']['Value'], 
                          team = player['Team'], 
                          shot = player['Shots'])
-            user = RlUser.objects.create(onlineid=str(player['OnlineID']), name=player['Name'])
+
          
-          RlMatch.objects.create(
-            scoreblue = stats['blueteamscore'],
-            scorered = stats['redteamscore'],
-            starttime = stats['starttime'], 
-            duration = stats['duration'])
-        
-          #file = open(os.path.join(fs.base_location, myfile.name) + '.final.json','w')
-          #encoded_str = json.dumps(myframes)
-          #file.write(encoded_str)
+          file = open(os.path.join(fs.base_location, myfile.name) + '.final.json','w')
+          encoded_str = json.dumps(myframes)
+          file.write(encoded_str)
         
         return redirect('play/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, myfile.name)))[0])
         

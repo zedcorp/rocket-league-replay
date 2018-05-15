@@ -9,30 +9,15 @@ from django.db import models
 
 
 class RlMatch(models.Model):
-    scoreblue = models.IntegerField(blank=True, null=True)
-    scorered = models.IntegerField(blank=True, null=True)
-    duration = models.IntegerField(blank=True, null=True)
-    starttime = models.DateTimeField(blank=True, null=True)
+    rlmatchid = models.TextField(blank=False, unique=True)
+    scoreblue = models.IntegerField(blank=False, null=False)
+    scorered = models.IntegerField(blank=False, null=False)
+    duration = models.IntegerField(blank=False, null=False)
+    starttime = models.DateTimeField(blank=False, null=False)
 
     class Meta:
         managed = True
         db_table = 'rl_match'
-
-
-class RlPlayer(models.Model):
-    name = models.TextField(blank=True, null=True)
-    goal = models.IntegerField(blank=True, null=True)
-    shot = models.IntegerField(blank=True, null=True)
-    assist = models.IntegerField(blank=True, null=True)
-    saves = models.IntegerField(blank=True, null=True)
-    onlineid = models.TextField(blank=True, null=True)
-    platform = models.TextField(blank=True, null=True)
-    team = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'rl_player'
-
 
 class RlTeam(models.Model):
 
@@ -42,9 +27,25 @@ class RlTeam(models.Model):
 
 
 class RlUser(models.Model):
-    onlineid = models.TextField(blank=True, null=True)
-    name = models.TextField(blank=True, null=True)
+    onlineid = models.TextField(blank=False, null=False, unique=True)
+    name = models.TextField(blank=False, null=False)
 
     class Meta:
         managed = True
         db_table = 'rl_user'
+
+class RlPlayer(models.Model):
+    idmatch = models.ForeignKey(RlMatch, on_delete=models.CASCADE)
+    userid = models.ForeignKey(RlUser, on_delete=models.CASCADE)
+    name = models.TextField(blank=False, null=False)
+    goal = models.IntegerField(blank=False, null=False)
+    shot = models.IntegerField(blank=False, null=False)
+    assist = models.IntegerField(blank=False, null=False)
+    saves = models.IntegerField(blank=False, null=False)
+    platform = models.TextField(blank=False, null=False)
+    team = models.IntegerField(blank=False, null=False)
+
+    class Meta:
+        managed = True
+        db_table = 'rl_player'
+        unique_together = ("idmatch", "userid")

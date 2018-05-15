@@ -28,12 +28,20 @@ def load_frames():
         update_ball_data, update_boost_data
 
     data = get_data()
-
+    
+    bluescore = 0
+    redscore = 0
+    if('Team0Score') in data['Properties']:
+      bluescore = data['Properties']['Team0Score']
+    if('Team1Score') in data['Properties']:
+      redscore = data['Properties']['Team1Score']
+    
     stats = {
+      'matchid' : data['Properties']['Id'],
       'goals': [data['Properties']['Goals']],
       'playerstats': [data['Properties']['PlayerStats']],
-      'blueteamscore': data['Properties']['Team0Score'],
-      'redteamscore': data['Properties']['Team1Score'],
+      'blueteamscore': bluescore,
+      'redteamscore': redscore,
       'starttime' : datetime.strptime(data['Properties']['Date'], '%Y-%m-%d %H-%M-%S'),
       'duration' :  data['Frames'][len(data['Frames'])-1]['Time']  - data['Frames'][0]['Time'] 
     }
