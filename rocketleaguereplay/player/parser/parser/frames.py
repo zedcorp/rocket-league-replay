@@ -1,13 +1,22 @@
+from collections import defaultdict
+from datetime import datetime
+
 frames = None
+stats = None
 
 
 def get_frames():
     global frames
     return frames
+  
+def get_stats():
+    global stats
+    return stats
 
 
 def load_frames():
     global frames
+    global stats
 
     import copy
 
@@ -19,6 +28,15 @@ def load_frames():
         update_ball_data, update_boost_data
 
     data = get_data()
+
+    stats = {
+      'goals': [data['Properties']['Goals']],
+      'playerstats': [data['Properties']['PlayerStats']],
+      'blueteamscore': data['Properties']['Team0Score'],
+      'redteamscore': data['Properties']['Team1Score'],
+      'starttime' : datetime.strptime(data['Properties']['Date'], '%Y-%m-%d %H-%M-%S'),
+      'duration' :  data['Frames'][len(data['Frames'])-1]['Time']  - data['Frames'][0]['Time'] 
+    }
 
     current_ball_object = None
     current_car_objects = {}

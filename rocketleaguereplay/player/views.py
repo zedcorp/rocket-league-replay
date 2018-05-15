@@ -1,11 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 
 from player.conf import PlayerConf
 from player.parser.data.data_loader import load_data
-from player.parser.parser.frames import get_frames
+from player.parser.parser.frames import get_frames, get_stats
 from player.parser.data.object_numbers import get_player_info
+
+from player.models import RlTeam, RlMatch, RlPlayer, RlUser
 
 import sys, string, os
 import copy
@@ -22,6 +24,11 @@ def replay(request, file):
     file = open(os.path.join(fs.base_location, file) + '.replay.final.json','r')
     response = HttpResponse(content=file)      
     return response
+
+def play(request, file):
+  return render(request, 'player/start.html', {
+    'data_url' : '../replay/' + file
+  })
 
 def upload(request):
     if request.method == 'POST' and request.FILES['myfile']:
@@ -45,7 +52,9 @@ def upload(request):
         
           ################# dirty part should change the load_data instead #################
           frames = get_frames()
-          step = 30
+          player_info = get_player_info()
+          
+          step = 1
           myframes = [len(frames)/step]
           myframes[0] = {
               'time': 0,
@@ -70,14 +79,32 @@ def upload(request):
             myframes[int(i/step - 1)]['ball'] = frames[i]['ball']
             
             for car in myframes[int(i/step - 1)]['cars']:
-              myframes[int(i/step - 1)]['cars'][car]['name'] = get_player_info()[car]['name']
+              myframes[int(i/step - 1)]['cars'][car]['name'] = player_info[car]['name']
           ####################################################################################
+         
+          stats = get_stats()
+          
+          for player in stats['playerstats'][0]:
+            RlPlayer.objects.create(onlineid=str(player['OnlineID']), 
+                         name=player['Name'], 
+                         assist = player['Assists'], 
+                         goal = player['Goals'], 
+                         saves = player['Saves'], 
+                         platform = player['Platform']['Value'], 
+                         team = player['Team'], 
+                         shot = player['Shots'])
+            user = RlUser.objects.create(onlineid=str(player['OnlineID']), name=player['Name'])
+         
+          RlMatch.objects.create(
+            scoreblue = stats['blueteamscore'],
+            scorered = stats['redteamscore'],
+            starttime = stats['starttime'], 
+            duration = stats['duration'])
         
-          file = open(os.path.join(fs.base_location, myfile.name) + '.final.json','w')
-          encoded_str = json.dumps(myframes)
-          file.write(encoded_str)
+          #file = open(os.path.join(fs.base_location, myfile.name) + '.final.json','w')
+          #encoded_str = json.dumps(myframes)
+          #file.write(encoded_str)
         
-        return render(request, 'player/start.html', {
-            'data_url' : 'replay/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, myfile.name)))[0]
-        })
+        return redirect('play/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, myfile.name)))[0])
+        
     return render(request, 'player/upload.html')

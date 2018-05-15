@@ -5,5 +5,6 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('upload', views.upload, name='upload'),
-    path('replay/<str:file>', views.replay, name='replay')
+    path('replay/<str:file>', views.replay, name='replay'),
+    path('play/<str:file>', views.play, name='play')
 ]

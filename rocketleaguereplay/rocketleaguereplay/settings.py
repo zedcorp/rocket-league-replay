@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['86.195.104.184', '127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'player',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,8 +77,12 @@ WSGI_APPLICATION = 'rocketleaguereplay.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+        'NAME': 'rl',                      
+        'USER': 'postgres',
+        'PASSWORD': '56645664',
+        'HOST': 'localhost',                      
+        'PORT': '5432',                     
     }
 }
 

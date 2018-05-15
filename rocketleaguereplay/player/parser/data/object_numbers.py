@@ -140,9 +140,6 @@ def parse_player_info():
                 if 'Engine.PlayerReplicationInfo:PlayerName' in update.keys():
                     player_info[player_id]['name'] = \
                         update['Engine.PlayerReplicationInfo:PlayerName']
-                if 'TAGame.PRI_TA:ClientLoadouts' in update.keys():
-                    player_info[player_id]['items'] = \
-                        update['TAGame.PRI_TA:ClientLoadouts']
                 if 'Engine.PlayerReplicationInfo:Team' in update.keys():
                     player_info[player_id]['team'] = \
                         update['Engine.PlayerReplicationInfo:Team']['ActorId']
@@ -167,6 +164,9 @@ def parse_player_info():
 
 
 def get_player_team_id(player_id):
+    
+    if not 'team' in get_player_info()[player_id]:
+      return None
     if get_player_info()[player_id]['team'] == team0:
         return 'team0'
     elif get_player_info()[player_id]['team'] == team1:
