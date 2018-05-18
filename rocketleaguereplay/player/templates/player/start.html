@@ -98,6 +98,9 @@ totalFrames = frames.length;
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
+var goalLength = canvas.width / 5;
+var goalWidth = canvas.height / 20;
+
 function line(xs, ys, xe, ye) {
     ctx.lineTo(xe, ye);
     xs = xe;
@@ -170,7 +173,7 @@ frames.forEach(function (frame, i) {
 });
 
 // Draw events
-/*
+
 var events = document.getElementById('events');
 for (var goal of goals) {
     var span = document.createElement('span');
@@ -182,7 +185,7 @@ for (var goal of goals) {
     //span.style.display = 'block';
     events.appendChild(span);
 }
-*/
+
 
 var canvas = document.getElementById('canvas');
 
@@ -248,11 +251,10 @@ function clear() {
 
     ctx.lineWidth = 2;
     ctx.strokeStyle="black";
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeRect(0, goalWidth, canvas.width, canvas.height - 2 * goalWidth);
 
     // Draw goals
-    var goalLength = canvas.width / 5;
-    var goalWidth = canvas.height / 20;
+
     ctx.fillStyle = 'blue';
     ctx.fillRect(canvas.width / 2 - goalLength / 2, 0, goalLength, goalWidth);
     ctx.fillStyle = 'red';
