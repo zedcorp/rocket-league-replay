@@ -14,13 +14,13 @@ class RlMatch(models.Model):
     scorered = models.IntegerField(blank=False, null=False)
     duration = models.IntegerField(blank=False, null=False)
     starttime = models.DateTimeField(blank=False, null=False)
+    frames = models.TextField(blank=True, unique=False)
 
     class Meta:
         managed = True
         db_table = 'rl_match'
 
 class RlTeam(models.Model):
-
     class Meta:
         managed = True
         db_table = 'rl_team'
@@ -29,6 +29,18 @@ class RlTeam(models.Model):
 class RlUser(models.Model):
     onlineid = models.TextField(blank=False, null=False, unique=True)
     name = models.TextField(blank=False, null=False)
+    nbmatchs = models.IntegerField(blank=False, null=False, default=0)
+    nbwin = models.IntegerField(blank=False, null=False, default=0)
+    nblose = models.IntegerField(blank=False, null=False, default=0)
+    pwin = models.FloatField(blank=False, null=False, default=0)
+    score = models.IntegerField(blank=False, null=False, default=0)
+    pscore = models.FloatField(blank=False, null=False, default=0)
+    nbgoal = models.IntegerField(blank=False, null=False, default=0)
+    pgoal = models.FloatField(blank=False, null=False, default=0)
+    nbassist = models.IntegerField(blank=False, null=False, default=0)
+    passist = models.FloatField(blank=False, null=False, default=0)
+    nbsave = models.IntegerField(blank=False, null=False, default=0)
+    psave = models.FloatField(blank=False, null=False, default=0)
 
     class Meta:
         managed = True
@@ -37,15 +49,28 @@ class RlUser(models.Model):
 class RlPlayer(models.Model):
     idmatch = models.ForeignKey(RlMatch, on_delete=models.CASCADE)
     userid = models.ForeignKey(RlUser, on_delete=models.CASCADE)
-    name = models.TextField(blank=False, null=False)
-    goal = models.IntegerField(blank=False, null=False)
-    shot = models.IntegerField(blank=False, null=False)
-    assist = models.IntegerField(blank=False, null=False)
-    saves = models.IntegerField(blank=False, null=False)
-    platform = models.TextField(blank=False, null=False)
-    team = models.IntegerField(blank=False, null=False)
+    name = models.TextField(blank=False, null=False, default=0)
+    score = models.IntegerField(blank=False, null=False, default=0)
+    goal = models.IntegerField(blank=False, null=False, default=0)
+    shot = models.IntegerField(blank=False, null=False, default=0)
+    assist = models.IntegerField(blank=False, null=False, default=0)
+    saves = models.IntegerField(blank=False, null=False, default=0)
+    platform = models.TextField(blank=False, null=False, default=0)
+    team = models.IntegerField(blank=False, null=False, default=0)
 
     class Meta:
         managed = True
         db_table = 'rl_player'
         unique_together = ("idmatch", "userid")
+        
+class RlMatchEvent(models.Model):
+
+      
+    idmatch = models.ForeignKey(RlMatch, on_delete=models.CASCADE)
+    userid = models.ForeignKey(RlUser, on_delete=models.CASCADE)
+    time = models.FloatField(blank=False, null=False, default=0)
+    type = models.TextField(blank=False, null=False)
+
+    class Meta:
+        managed = True
+        db_table = 'rl_match_event'

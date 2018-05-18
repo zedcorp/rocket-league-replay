@@ -1,0 +1,113 @@
+<html>
+<head>
+{% load static %} 
+<script type="text/javascript" charset="utf8" src='https://code.jquery.com/jquery-3.3.1.js'></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.2.5/js/dataTables.select.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.5/css/select.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="{% static "player.css" %}">
+
+</head>
+<body>
+<table id="users" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Nb match</th>
+            <th>Nb win</th>
+            <th>Nb lose</th>
+            <th>%win</th>
+            <th>Score / Match</th>
+            <th>Goals / Match</th>
+            <th>Assist / Match</th>
+            <th>Saves / Match</th>
+            <th>Tot Score</th>
+            <th>Nb Goals</th>
+            <th>Nb Assist</th>
+            <th>Nb Saves</th>
+            
+        </tr>
+    </thead>
+</table>
+
+<table id="matchs" class="display" style="width:50px">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Score</th>
+            <th>Score</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+</table>
+
+<script type="text/javascript">
+
+var matchTable;
+
+$(document).ready(function() {
+var usersTable = $('#users').DataTable( {
+    "select": true,
+    "ajax": 'users.json',
+    "columnDefs": [
+        {"className": "dt-center", "targets": "_all"}
+      ],
+    "columns": [
+      {'data': "id"},
+      {'data': "name"},
+      {'data': 'nbmatchs'},
+      {'data': 'nbwin'},
+      {'data': 'nblose'},
+      {'data': 'pwin'},
+      {'data': 'pscore'},
+      {'data': 'nbgoalpermatch'},
+      {'data': 'nbassistpermatch'},
+      {'data': 'nbsavepermatch'},
+      {'data': 'score'},
+      {'data': 'nbgoal'},
+      {'data': 'nbassist'},
+      {'data': 'nbsave'}
+    ],
+    "order" : [[1, "desc"]]
+  } );
+
+
+
+  usersTable.on( 'select', function ( e, dt, type, indexes ) {
+      if ( type === 'row' ) {
+          var id = usersTable.rows( indexes ).data().pluck( 'id' )[0];
+          if(matchTable) {
+            matchTable.ajax.url( 'matchs.json?userid='+id ).load();
+          } else {
+            matchTable = $('#matchs').DataTable( {
+              "select": true,
+              "ajax": {
+                "url": "matchs.json?userid="+id
+              },
+              "columnDefs": [
+                  {"className": "dt-center", "targets": "_all"}
+                ],
+              "columns": [
+                {'data': "datetime"},
+                {'data': "name1"},
+                {'data': "score1"},
+                {'data': "score2"},
+                {'data': "name2"}
+              ],
+              "order" : [[0, "desc"]]
+            } );
+          }
+      }
+  } );
+
+} );
+
+
+
+</script>
+</body>
+</html>

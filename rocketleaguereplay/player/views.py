@@ -23,10 +23,58 @@ def index(request):
 
 
 def users(request):
-    users = RlUser.objects.all()
-    son_serialized_objects = serializers.serialize("json", users)
-    return HttpResponse(son_serialized_objects)
+    users = RlUser.objects.all().order_by('-nbmatchs')
+    
+    data = []
 
+    for user in users:
+      data.append({
+        'id': user.id,
+        'name': user.name,
+        'nbmatchs': user.nbmatchs,
+        'nbwin': user.nbwin,
+        'nblose': user.nblose,
+        'pwin': user.pwin,
+        'pscore': user.score / user.nbmatchs,
+        'nbgoalpermatch': user.nbgoal / user.nbmatchs,
+        'nbassistpermatch': user.nbassist / user.nbmatchs,
+        'nbsavepermatch': user.nbsave / user.nbmatchs,
+        'score': user.score,
+        'nbgoal': user.nbgoal,
+        'nbassist': user.nbassist,
+        'nbsave': user.nbsave
+        })
+      
+    usersDto = {'data': data}
+    
+
+    jsonData = json.dumps(usersDto)
+    #jsonData = json_serialized_objects = serializers.serialize("json", users)
+    return HttpResponse(jsonData)
+
+def matchs(request):
+    players = RlPlayer.objects.filter(userid = request.GET.get('userid'))
+    
+    data = []
+
+    for player in players:
+      matchs = RlMatch.objects.filter(id = player.idmatch_id)
+      for match in matchs:
+        data.append({
+          'datetime': str(match.starttime),
+          'name1': '0',
+          'name2': '0',
+          'score1': '0',
+          'score2': '0'
+        })
+      
+    usersDto = {'data': data}
+    
+
+    jsonData = json.dumps(usersDto)
+    #jsonData = json_serialized_objects = serializers.serialize("json", users)
+    return HttpResponse(jsonData)
+  
 def replay(request, file):
     fs = FileSystemStorage()
     file = open(os.path.join(fs.base_location, file) + '.replay.final.json','r')
@@ -39,24 +87,29 @@ def play(request, file):
   })
 
 def upload(request):
-    if request.method == 'POST' and request.FILES['myfile']:
-        myfile = request.FILES['myfile']
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        uploaded_file_url = fs.url(filename)
-        
-        os.path.join(fs.base_location, myfile.name)
-        
-        if not os.path.isfile(os.path.join(fs.base_location, myfile.name) + '.final.json'):
-        
-          # .replay to .json
-          print('.replay to .json conversion: ' + filename)
-          os.system(settings.Rocket_League_Replay_Parser_EXE_Location  + " " + os.path.join(fs.base_location, myfile.name) + " > " + os.path.join(fs.base_location, myfile.name) + '.json')
+    fs = FileSystemStorage()
+    if request.method == 'POST' and request.FILES['files']:
+      for file in request.FILES.getlist('files'):
+        if os.path.isfile(os.path.join(fs.base_location, file.name) + '.final.json'):
+          print(file.name + " : file already imported" )
+          continue
+        else:
+          filename = fs.save(file.name, file)
+          uploaded_file_url = fs.url(filename)
           
-          # parsin json
-          print('light .json processing: ' + os.path.join(fs.base_location, myfile.name) + '.json')
-          load_data(os.path.join(fs.base_location, myfile.name) + '.json')
-    
+          os.path.join(fs.base_location, file.name)
+        
+          try:
+            # .replay to .json
+            print(file.name + " : .replay to .json conversion")
+            os.system(settings.Rocket_League_Replay_Parser_EXE_Location  + " " + os.path.join(fs.base_location, file.name) + " > " + os.path.join(fs.base_location, file.name) + '.json')
+            
+            # parsin json
+            print(file.name + " : .json processing")
+            load_data(os.path.join(fs.base_location, file.name) + '.json')
+          except (Exception):
+            print(file.name + " : error parsing json" )
+            continue
         
           ################# dirty part should change the load_data instead #################
           frames = get_frames()
@@ -77,17 +130,6 @@ def upload(request):
               'cars': {}
           }
       
-          for i in range(0, len(frames), step):
-            if( i > 0 ):
-              myframes.append(copy.deepcopy(myframes[int(i/step - 1)]))
-            
-            myframes[int(i/step - 1)]['time'] = frames[i]['time']['real_replay_time']
-            myframes[int(i/step - 1)]['scoreboard'] = frames[i]['scoreboard']
-            myframes[int(i/step - 1)]['cars'] = frames[i]['cars']
-            myframes[int(i/step - 1)]['ball'] = frames[i]['ball']
-            
-            for car in myframes[int(i/step - 1)]['cars']:
-              myframes[int(i/step - 1)]['cars'][car]['name'] = player_info[car]['name']
           ####################################################################################
          
           stats = get_stats()
@@ -101,21 +143,50 @@ def upload(request):
                     
           for player in stats['playerstats'][0]:
             user = RlUser.objects.get_or_create(onlineid=str(player['OnlineID']), name=player['Name'])
+            
+            if player['Team'] == 0 and match[0].scoreblue > match[0].scorered:
+              user[0].nbwin = user[0].nbwin + 1
+            elif player['Team'] == 1 and match[0].scoreblue < match[0].scorered:
+              user[0].nbwin = user[0].nbwin + 1
+            
+            user[0].nbmatchs = user[0].nbmatchs + 1 
+            
+            user[0].nblose = user[0].nblose
+            user[0].pwin = user[0].nbwin * 100 / user[0].nbmatchs
+            user[0].nbgoal = user[0].nbgoal + player['Goals']
+            user[0].nbassist = user[0].nbassist + player['Assists']
+            user[0].nbsave = user[0].nbsave + player['Saves']
+            user[0].score = user[0].score + player['Score']
+            
             RlPlayer.objects.get_or_create(userid=user[0], 
                          idmatch = match[0],
                          name=player['Name'], 
+                         score = player['Score'], 
                          assist = player['Assists'], 
                          goal = player['Goals'], 
                          saves = player['Saves'], 
                          platform = player['Platform']['Value'], 
                          team = player['Team'], 
                          shot = player['Shots'])
+            
+            user[0].save()
 
+          for i in range(0, len(frames), step):
+            if( i > 0 ):
+              myframes.append(copy.deepcopy(myframes[int(i/step - 1)]))
+            
+            myframes[int(i/step - 1)]['time'] = frames[i]['time']['real_replay_time']
+            myframes[int(i/step - 1)]['scoreboard'] = frames[i]['scoreboard']
+            myframes[int(i/step - 1)]['cars'] = frames[i]['cars']
+            myframes[int(i/step - 1)]['ball'] = frames[i]['ball']
+            
+            for car in myframes[int(i/step - 1)]['cars']:
+              myframes[int(i/step - 1)]['cars'][car]['name'] = player_info[car]['name']
          
-          file = open(os.path.join(fs.base_location, myfile.name) + '.final.json','w')
+          filefinal = open(os.path.join(fs.base_location, file.name) + '.final.json','w')
           encoded_str = json.dumps(myframes)
-          file.write(encoded_str)
+          filefinal.write(encoded_str)
         
-        return redirect('play/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, myfile.name)))[0])
+      return redirect('play/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, file.name)))[0])
         
     return render(request, 'player/upload.html')
