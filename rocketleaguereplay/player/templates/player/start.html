@@ -209,6 +209,7 @@ for (var goal of goals) {
     var span = document.createElement('span');
     span.textContent = 'G';
     span.style.fontWeight = 'bold';
+    span.style.position = 'absolute';
     span.style.color = goal.team;
     span.style.marginLeft = (goal.frame * 100 / totalFrames) + '%';
     span.style.float = 'left';
