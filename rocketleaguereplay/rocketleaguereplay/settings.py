@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'rocketleaguereplay.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-        'NAME': 'rl',                      
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'rl',
         'USER': 'postgres',
-        'PASSWORD': '56645664',
-        'HOST': 'localhost',                      
-        'PORT': '5432',                     
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
