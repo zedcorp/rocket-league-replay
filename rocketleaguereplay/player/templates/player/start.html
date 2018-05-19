@@ -89,7 +89,7 @@ function togglePause(event) {
 }
 
 var request = new XMLHttpRequest();
-request.open("GET", {{ data_url }}, false);
+request.open("GET", '{{ data_url }}', false);
 request.send(null);
 
 var frames = JSON.parse(request.responseText);
