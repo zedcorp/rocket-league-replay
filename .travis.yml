@@ -8,3 +8,5 @@ if: branch IN (master)
 
 script:
   - echo "ZOOOOOB"
+  - ls
+  - pwd
