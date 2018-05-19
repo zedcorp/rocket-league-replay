@@ -1,6 +1,7 @@
 <html>
 <header><title>This is title</title></header>
 <head>
+    {% load static %} 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
 </head>
 <body>
@@ -77,16 +78,44 @@ var carLength = 20,
     goals = [];
 
 var rad = document.menu.fps;
-for(var i = 0; i < rad.length; i++) {
-    rad[i].onclick = function() {
-        fps = this.value;
-    };
-}
+	for (var i = 0; i < rad.length; i++) {
+		rad[i].onclick = function () {
+			fps = this.value;
+		};
+	}	
+
+	function drawOneCar(imgCar) {
+		ctx.save();
+
+		var x = 50;
+		var y = 50;
+		var angle = 90 + Math.PI;
+
+		ctx.translate(x, y);
+
+		ctx.rotate(angle);
+
+		var carWidth = 20;
+		var carHeight = 40;
+
+		ctx.fillStyle = 'red';
+		ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
+
+		ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
+
+		ctx.restore();
+	}
 
 function togglePause(event) {
     pause = !pause;
     event.target.textContent = pause ? 'Play' : 'Pause';
 }
+
+var imgGround = new Image();
+imgGround.src = '{% static "Ground.png" %}';
+
+var imgOctane = new Image();
+imgOctane.src = '{% static "Octane.png" %}';
 
 var request = new XMLHttpRequest();
 request.open("GET", '{{ data_url }}', false);
@@ -164,6 +193,7 @@ frames.forEach(function (frame, i) {
                 id: carId,
                 colour: (team == 'red') ? redTeamSize - 1 : blueTeamSize + 2,
                 team: team,
+                name: frame.cars[carId].name,
                 countOwnSide: 0,
                 countOpponentSide: 0,
                 boost: 0
@@ -186,7 +216,6 @@ for (var goal of goals) {
     events.appendChild(span);
 }
 
-
 var canvas = document.getElementById('canvas');
 
 var xRange = Math.max( ...xs ) - Math.min( ...xs );
@@ -201,13 +230,13 @@ function getScaledPos(loc) {
     };
 }
 
-function drawCar(carId, car) {
+function drawCar(carId, car, imgCar) {
     ctx.save();
 
     var scaledPos = getScaledPos(car.loc);
     var x = scaledPos.x;
     var y = scaledPos.y;
-    var angle = Math.atan2(car.lin_vel.y, car.lin_vel.x) - (Math.PI / 2);
+    var angle = Math.atan2(car.lin_vel.y, car.lin_vel.x) - (Math.PI / 2) + Math.PI;
 
     ctx.translate(x, y);
     
@@ -217,6 +246,7 @@ function drawCar(carId, car) {
 
     ctx.fillStyle = colours[cars[carId].colour];
     ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
+	ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
 
     if (cars[carId].boosting) {
         ctx.translate(0, (-carLength / 2) - 5);
@@ -229,7 +259,7 @@ function drawCar(carId, car) {
 
 function drawBall(ball) {
     ctx.save();
-    ctx.fillStyle = 'black';
+	ctx.fillStyle = 'lightgray';
     ctx.beginPath();
     var scaledPos = getScaledPos(ball.loc);
     var x = scaledPos.x;
@@ -249,16 +279,18 @@ function updateScore(frame) {
 function clear() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle="black";
-    ctx.strokeRect(0, goalWidth, canvas.width, canvas.height - 2 * goalWidth);
+	ctx.drawImage(imgGround, -15, -15, canvas.width + 30, canvas.height + 30);
+
+    //ctx.lineWidth = 2;
+    //ctx.strokeStyle="black";
+    //ctx.strokeRect(0, goalWidth, canvas.width, canvas.height - 2 * goalWidth);
 
     // Draw goals
 
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(canvas.width / 2 - goalLength / 2, 0, goalLength, goalWidth);
-    ctx.fillStyle = 'red';
-    ctx.fillRect(canvas.width / 2 - goalLength / 2, canvas.height - goalWidth, goalLength, goalWidth);
+    //ctx.fillStyle = 'blue';
+    //ctx.fillRect(canvas.width / 2 - goalLength / 2, 0, goalLength, goalWidth);
+    //ctx.fillStyle = 'red';
+    //ctx.fillRect(canvas.width / 2 - goalLength / 2, canvas.height - goalWidth, goalLength, goalWidth);
 }
 
 var tbl  = document.getElementById('car-table');
@@ -282,7 +314,7 @@ for (var carId in cars) {
     var car = cars[carId];
     var row = tBody.insertRow();
     var playerName = row.insertCell();
-    playerName.appendChild(document.createTextNode(carId));
+    playerName.appendChild(document.createTextNode(car.name));
     playerName.style['background-color'] = colours[car.colour];
     var team = row.insertCell();
     team.appendChild(document.createTextNode(car.team));
@@ -362,8 +394,8 @@ function draw(frames) {
         console.log(frame);
     }
     for (var carId in frame.cars) {
-        var car = frame.cars[carId];
-        drawCar(carId, car);
+		var car = frame.cars[carId];
+		drawCar(carId, car, imgOctane);
         updateCar(cars[carId], frame.cars[carId]);
     }
     
