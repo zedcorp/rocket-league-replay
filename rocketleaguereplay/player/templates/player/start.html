@@ -64,7 +64,8 @@ var carLength = 20,
     ballRadius = 5,
     fps = 60,
     zRatio = 8,
-    colours = ['red', 'yellow', 'orange', 'green', 'blue', 'purple'],
+    blueColors = ['#0066ff', '#00cc66', '#ccf5ff']
+    redColors = ['#ffff00', '#ff9900', '#ff0000'],
     blueTeamSize = 0,
     redTeamSize = 0,
     cars = {},
@@ -191,7 +192,7 @@ frames.forEach(function (frame, i) {
             }
             cars[carId] = {
                 id: carId,
-                colour: (team == 'red') ? redTeamSize - 1 : blueTeamSize + 2,
+                colour: (team == 'red') ? redTeamSize - 1 : blueTeamSize - 1,
                 team: team,
                 name: frame.cars[carId].name,
                 countOwnSide: 0,
@@ -245,9 +246,9 @@ function drawCar(carId, car, imgCar) {
 
     ctx.scale(scaledPos.z, scaledPos.z);
 
-    ctx.fillStyle = colours[cars[carId].colour];
+    ctx.fillStyle = (cars[carId].team == 'red') ? redColors[[cars[carId].colour]] : blueColors[[cars[carId].colour]];
     ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
-	ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
+    ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
 
     if (cars[carId].boosting) {
         ctx.translate(0, (-carLength / 2) - 5);
@@ -260,7 +261,7 @@ function drawCar(carId, car, imgCar) {
 
 function drawBall(ball) {
     ctx.save();
-	ctx.fillStyle = 'lightgray';
+    ctx.fillStyle = 'lightgray';
     ctx.beginPath();
     var scaledPos = getScaledPos(ball.loc);
     var x = scaledPos.x;
@@ -280,7 +281,7 @@ function updateScore(frame) {
 function clear() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	ctx.drawImage(imgGround, -15, -15, canvas.width + 30, canvas.height + 30);
+	ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
 
     //ctx.lineWidth = 2;
     //ctx.strokeStyle="black";
@@ -316,7 +317,7 @@ for (var carId in cars) {
     var row = tBody.insertRow();
     var playerName = row.insertCell();
     playerName.appendChild(document.createTextNode(car.name));
-    playerName.style['background-color'] = colours[car.colour];
+    playerName.style['background-color'] = (car.team == 'red') ? redColors[car.colour] : blueColors[car.colour];
     var team = row.insertCell();
     team.appendChild(document.createTextNode(car.team));
     var defense = row.insertCell();
