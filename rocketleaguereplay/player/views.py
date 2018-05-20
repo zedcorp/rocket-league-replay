@@ -122,7 +122,7 @@ def upload(request):
                     zip_ref.extractall(fs.base_location)
                     zip_ref.close()
                     # parsing json
-                    load_data(os.path.join(fs.base_location, rl_match_id + '.replay.json'))
+                    load_data(os.path.join(fs.base_location, rl_match_id + '.json'))
                 except Exception as e:
                     print(rl_match_id + " : error parsing json")
                     print("OS error: {0}".format(e))
