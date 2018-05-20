@@ -25,7 +25,7 @@ SECRET_KEY = '!67#gbf0zo(7z9o#t!i17bme9p_*t=&3^(-!_3nqgrrt2q4&#u'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['86.195.104.184', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'rocketleaguereplay.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-        'NAME': 'rl',                      
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'rl',
         'USER': 'postgres',
-        'PASSWORD': '56645664',
-        'HOST': 'localhost',                      
-        'PORT': '5432',                     
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
