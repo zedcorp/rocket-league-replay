@@ -8,9 +8,11 @@ if: branch IN (master,feature/no-parsing)
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_07459ba4a5ab_key -iv $encrypted_07459ba4a5ab_iv -in rocketleaguekey.pem.enc -out rocketleaguekey.pem -d
+  - sudo chmod 400 rocketleaguekey.pem
 
 script:
   - echo "ZOOOOOB"
   - ls
   - pwd
-  - source deploy.sh
+  - sudo chmod +x ./deploy.sh
+  - ./deploy.sh
