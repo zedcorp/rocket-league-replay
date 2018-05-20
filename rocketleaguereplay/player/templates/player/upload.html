@@ -3,6 +3,8 @@
 {% load static %}
 
 {% block content %}
+    <b>Upload zipped json files</b>
+    <br>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="file" name="files" multiple="true">
