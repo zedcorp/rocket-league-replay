@@ -1,5 +1,5 @@
 <html>
-<header><title>This is title</title></header>
+<header><title>RL Replay Player</title></header>
 <head>
     {% load static %} 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
@@ -163,8 +163,8 @@ frames.forEach(function (frame, i) {
     }
     addLoc(frame.ball.loc);
 
-    var redScore = frame.scoreboard.team0;
-    var blueScore = frame.scoreboard.team1;
+    var blueScore = frame.scoreboard.team0;
+    var redScore = frame.scoreboard.team1;
     if (redScore != score.red) {
         score.red = redScore;
         goals.push({
@@ -281,7 +281,7 @@ function updateScore(frame) {
 function clear() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
+  ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
 
     //ctx.lineWidth = 2;
     //ctx.strokeStyle="black";

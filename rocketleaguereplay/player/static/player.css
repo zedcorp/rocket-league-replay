@@ -1,15 +1,13 @@
-body .ui-datatable .ui-datatable-data tr.ui-datatable-even.ui-state-highlight
+.greenClass
 	{
 	/*background-color handles the color of the highlighted row*/
 	/*color sets the color of the text*/
-	background-color: #0275d8;
-	color: #ffffff;
+	background-color: #ade89b !important;
 	border-color: #0267bf;
 }
 
-body .ui-datatable .ui-datatable-data tr.ui-datatable-odd.ui-state-highlight
+.redClass
 	{
-	background-color: #0275d8;
-	color: #ffffff;
+	background-color: #ffa8a8 !important;
 	border-color: #0267bf;
-}
+} 

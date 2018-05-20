@@ -53,19 +53,31 @@ def users(request):
     return HttpResponse(jsonData)
 
 def matchs(request):
-    players = RlPlayer.objects.filter(userid = request.GET.get('userid'))
+    userPlayers = RlPlayer.objects.filter(userid = request.GET.get('userid'))
     
     data = []
-
-    for player in players:
-      matchs = RlMatch.objects.filter(id = player.idmatch_id)
+    
+    for userPlayer in userPlayers:
+      matchs = RlMatch.objects.filter(id = userPlayer.idmatch_id)
       for match in matchs:
+        nameBlue = []
+        nameRed = []
+        for matchPlayer in RlPlayer.objects.filter(idmatch = match):
+          if matchPlayer.team == 0:
+            nameBlue.append(matchPlayer.name)
+          if matchPlayer.team == 1:
+            nameRed.append(matchPlayer.name)
+        
+        win = (userPlayer.team == 0 and match.scoreblue > match.scorered) or (userPlayer.team == 1 and match.scoreblue < match.scorered)
+        
         data.append({
-          'datetime': str(match.starttime),
-          'name1': '0',
-          'name2': '0',
-          'score1': '0',
-          'score2': '0'
+          'datetime': match.starttime.strftime("%d/%m/%y %H:%M"),
+          'name1': nameBlue,
+          'name2': nameRed,
+          'score1': match.scoreblue,
+          'score2': match.scorered,
+          'win' : win,
+          'rlmatchid': match.rlmatchid
         })
       
     usersDto = {'data': data}
