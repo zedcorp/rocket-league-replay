@@ -90,8 +90,8 @@ def matchs(request):
 def replay(request, file):
     fs = FileSystemStorage()
     # file = open(os.path.join(fs.base_location, file) + '.replay.final.json','r')
-    print("REPLAY: " + os.path.join(fs.base_location, file + '.json'))
-    file = open(os.path.join(fs.base_location, file + '.json'), 'r')
+    print("REPLAY: " + os.path.join(fs.base_location, file + '.replay.zip.final.json'))
+    file = open(os.path.join(fs.base_location, file + '.replay.zip.final.json'), 'r')
     response = HttpResponse(content=file)
     return response
 
