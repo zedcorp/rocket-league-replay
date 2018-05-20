@@ -89,10 +89,9 @@ def matchs(request):
 
 
 def replay(request, file):
-    fs = FileSystemStorage()
-    file = open(os.path.join(fs.base_location, file + '.json'), 'r')
-    response = HttpResponse(content=file)
-    return response
+    print("REPLAY: " + file)
+    match = RlMatch.objects.filter(rlmatchid = file)
+    response = HttpResponse(content=match[0].replayjson)
 
 
 def play(request, file):
