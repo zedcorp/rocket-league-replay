@@ -90,9 +90,9 @@ def matchs(request):
 def replay(request, file):
     fs = FileSystemStorage()
     # file = open(os.path.join(fs.base_location, file) + '.replay.final.json','r')
-    print("REPLAY: " + os.path.join(fs.base_location, file + '.replay.zip.final.json'))
-    file = open(os.path.join(fs.base_location, file + '.replay.zip.final.json'), 'r')
-    response = HttpResponse(content=file)
+    print("REPLAY: " + file)
+    match = RlMatch.objects.filter(rlmatchid = file)
+    response = HttpResponse(content=match[0].replayjson)
     return response
 
 
@@ -105,7 +105,9 @@ def upload(request):
     fs = FileSystemStorage()
     if request.method == 'POST' and request.FILES['files']:
         for file in request.FILES.getlist('files'):
-            if os.path.isfile(os.path.join(fs.base_location, file.name) + '.final.json'):
+            rl_match_id = file.name.split('.')[0]
+            match = RlMatch.objects.filter(rlmatchid = rl_match_id)
+            if len(match) > 0:
                 print(file.name + " : file already imported")
                 continue
             else:
@@ -120,9 +122,9 @@ def upload(request):
                     zip_ref.extractall(fs.base_location)
                     zip_ref.close()
                     # parsing json
-                    load_data(os.path.join(fs.base_location, file.name[:-4] + '.json'))
+                    load_data(os.path.join(fs.base_location, rl_match_id + '.replay.json'))
                 except Exception as e:
-                    print(file.name + " : error parsing json")
+                    print(rl_match_id + " : error parsing json")
                     print("OS error: {0}".format(e))
                     traceback.print_exc()
                     continue
@@ -198,11 +200,12 @@ def upload(request):
 
                     for car in myframes[int(i / step - 1)]['cars']:
                         myframes[int(i / step - 1)]['cars'][car]['name'] = player_info[car]['name']
-                print("FINAL: " + os.path.join(fs.base_location, file.name) + '.final.json')
-                filefinal = open(os.path.join(fs.base_location, file.name) + '.final.json', 'w')
+                print("FINAL: " + os.path.join(fs.base_location, rl_match_id) + '.final.json')
+                filefinal = open(os.path.join(fs.base_location, rl_match_id) + '.final.json', 'w')
                 encoded_str = json.dumps(myframes)
                 filefinal.write(encoded_str)
-
-        return redirect('play/' + os.path.splitext(os.path.basename(os.path.join(fs.base_location, file.name)))[0] + '.zip.final')
+                match[0].replayjson = encoded_str
+                match[0].save()
+        return redirect('play/' + rl_match_id)
 
     return render(request, 'player/upload.html')

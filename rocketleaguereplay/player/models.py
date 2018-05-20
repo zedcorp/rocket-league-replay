@@ -15,6 +15,7 @@ class RlMatch(models.Model):
     duration = models.IntegerField(blank=False, null=False)
     starttime = models.DateTimeField(blank=False, null=False)
     frames = models.TextField(blank=True, unique=False)
+    replayjson =  models.TextField(blank=True, null=True)
 
     class Meta:
         managed = True
