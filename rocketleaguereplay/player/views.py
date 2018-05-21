@@ -152,6 +152,11 @@ def upload_no_redirect(request):
         zip.extractall(fs.base_location)
         zip.close()
 
+        match = RlMatch.objects.filter(rlmatchid = rl_match_id)
+        if len(match) > 0 and match[0].replayjson:
+            print(rl_match_id + " : file already imported")
+            return
+
         try:
             load_data(os.path.join(fs.base_location, json_name))
         except Exception as e:
