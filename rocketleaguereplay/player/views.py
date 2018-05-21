@@ -58,7 +58,7 @@ def matchs(request):
     data = []
     
     for userPlayer in userPlayers:
-      matchs = RlMatch.objects.filter(id = userPlayer.idmatch_id)
+      matchs = RlMatch.objects.filter(id = userPlayer.idmatch_id).values('id','rlmatchid','scoreblue','scorered','duration','starttime')
       for match in matchs:
         nameBlue = []
         nameRed = []
