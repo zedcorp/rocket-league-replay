@@ -92,6 +92,7 @@ def replay(request, file):
     print("REPLAY: " + file)
     match = RlMatch.objects.filter(rlmatchid = file)
     response = HttpResponse(content=match[0].replayjson)
+    return response
 
 
 def play(request, file):
