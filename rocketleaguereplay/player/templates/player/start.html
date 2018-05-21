@@ -92,7 +92,7 @@ var carLength = 20,
     },
     goals = [],
     previousPositions = {},
-    positionRadius = 5,
+    positionRadius = 2,
     trail = false;
 
 var fpsRadio = document.menu.fps;
@@ -238,7 +238,7 @@ function drawCar(carId, car, imgCar) {
     // Update previous positions
     if (!previousPositions[carId]) {
         previousPositions[carId] = [];
-    } else if (index % 10 == 0) {
+    } else if (index % 3 == 0) {
         if (previousPositions[carId].length > 10) {
             previousPositions[carId].shift();
         }
@@ -299,7 +299,7 @@ function drawPath(carId) {
         var scaledPos = getScaledPos(position);
         var x = scaledPos.x;
         var y = scaledPos.y;
-{#        var radius = positionRadius * scaledPos.z;#}
+        var radius = positionRadius * scaledPos.z;
         ctx.fillStyle = getColor(carId);
         ctx.beginPath();
         ctx.arc(x, y, positionRadius, 0, 2 * Math.PI);
