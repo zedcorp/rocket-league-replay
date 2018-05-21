@@ -1,13 +1,17 @@
-.greenClass
-	{
-	/*background-color handles the color of the highlighted row*/
-	/*color sets the color of the text*/
-	background-color: #ade89b !important;
-	border-color: #0267bf;
+html, body {
+  height : 100%;
 }
 
-.redClass
-	{
-	background-color: #ffa8a8 !important;
-	border-color: #0267bf;
-} 
+.rows {
+  height : 100%;
+}
+
+.column {
+  height : 100%;
+  width : 33%;
+}
+
+.gamemap {
+  height: 600px;
+  width: 400px; 
+}

@@ -1,0 +1,13 @@
+.greenClass
+	{
+	/*background-color handles the color of the highlighted row*/
+	/*color sets the color of the text*/
+	background-color: #ade89b !important;
+	border-color: #0267bf;
+}
+
+.redClass
+	{
+	background-color: #ffa8a8 !important;
+	border-color: #0267bf;
+} 
