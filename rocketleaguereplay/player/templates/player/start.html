@@ -93,6 +93,7 @@ var carLength = 20,
     goals = [],
     previousPositions = {},
     positionRadius = 2,
+    storedPositionsCount = 20,
     trail = false;
 
 var fpsRadio = document.menu.fps;
@@ -239,7 +240,7 @@ function drawCar(carId, car, imgCar) {
     if (!previousPositions[carId]) {
         previousPositions[carId] = [];
     } else if (index % 3 == 0) {
-        if (previousPositions[carId].length > 10) {
+        if (previousPositions[carId].length > storedPositionsCount) {
             previousPositions[carId].shift();
         }
         previousPositions[carId].push(car.loc);
