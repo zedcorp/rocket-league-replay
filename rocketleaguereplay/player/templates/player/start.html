@@ -50,6 +50,15 @@
              name="fps" value="60">
             <label for="fps60">60</label>
         </div>
+        <div class="form-group">
+            <input type="radio" id="trailTrue"
+                   name="trail" value="ON">
+            <label for="trailTrue">ON</label>
+
+            <input type="radio" id="trailFalse"
+                   name="trail" value="OFF" checked>
+            <label for="trailFalse">OFF</label>
+        </div>
     </form>
     <table id="car-table">
         <thead>
@@ -69,7 +78,7 @@ var carLength = 20,
     rotationAngleCrt = 0,
     fps = 30,
     zRatio = 8,
-    blueColors = ['#0066ff', '#00cc66', '#ccf5ff']
+    blueColors = ['#0066ff', '#00cc66', '#ccf5ff'],
     redColors = ['#ffff00', '#ff9900', '#ff0000'],
     blueTeamSize = 0,
     redTeamSize = 0,
@@ -81,36 +90,28 @@ var carLength = 20,
         red: 0,
         blue: 0
     },
-    goals = [];
+    goals = [],
+    previousPositions = {},
+    positionRadius = 5,
+    trail = false;
+
+var fpsRadio = document.menu.fps;
+
+for (var i = 0; i < fpsRadio.length; i++) {
+    fpsRadio[i].onclick = function () {
+        fps = this.value;
+    };
+}
+
+var trailRadio = document.menu.trail;
+
+for (var i = 0; i < trailRadio.length; i++) {
+    trailRadio[i].onclick = function () {
+        trail = this.value == "ON";
+    };
+}
 
 var rad = document.menu.fps;
-	for (var i = 0; i < rad.length; i++) {
-		rad[i].onclick = function () {
-			fps = this.value;
-		};
-	}	
-
-	function drawOneCar(imgCar) {
-		ctx.save();
-
-		var x = 50;
-		var y = 50;
-		var angle = 90 + Math.PI;
-
-		ctx.translate(x, y);
-
-		ctx.rotate(angle);
-
-		var carWidth = 20;
-		var carHeight = 40;
-
-		ctx.fillStyle = 'red';
-		ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
-
-		ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
-
-		ctx.restore();
-	}
 
 function togglePause(event) {
     pause = !pause;
@@ -135,15 +136,6 @@ totalFrames = frames.length;
 
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-
-var goalLength = canvas.width / 5;
-var goalWidth = canvas.height / 20;
-
-function line(xs, ys, xe, ye) {
-    ctx.lineTo(xe, ye);
-    xs = xe;
-    ys = ye;
-}
 
 var xs = [];
 var ys = [];
@@ -211,8 +203,11 @@ frames.forEach(function (frame, i) {
     }
 });
 
-// Draw events
+function getColor(carId) {
+    return (cars[carId].team == 'red') ? redColors[[cars[carId].colour]] : blueColors[[cars[carId].colour]];
+}
 
+// Draw events
 var events = document.getElementById('events');
 for (var goal of goals) {
     var span = document.createElement('span');
@@ -222,7 +217,6 @@ for (var goal of goals) {
     span.style.color = goal.team;
     span.style.marginLeft = (goal.frame * 100 / totalFrames) + '%';
     span.style.float = 'left';
-    //span.style.display = 'block';
     events.appendChild(span);
 }
 
@@ -241,6 +235,16 @@ function getScaledPos(loc) {
 }
 
 function drawCar(carId, car, imgCar) {
+    // Update previous positions
+    if (!previousPositions[carId]) {
+        previousPositions[carId] = [];
+    } else if (index % 10 == 0) {
+        if (previousPositions[carId].length > 10) {
+            previousPositions[carId].shift();
+        }
+        previousPositions[carId].push(car.loc);
+    }
+
     ctx.save();
 
     var scaledPos = getScaledPos(car.loc);
@@ -254,7 +258,7 @@ function drawCar(carId, car, imgCar) {
 
     ctx.scale(scaledPos.z, scaledPos.z);
 
-    ctx.fillStyle = (cars[carId].team == 'red') ? redColors[[cars[carId].colour]] : blueColors[[cars[carId].colour]];
+    ctx.fillStyle = getColor(carId);
     ctx.fillRect(-carWidth / 2, -carLength / 2, carWidth, carLength);
     ctx.drawImage(imgCar, -carWidth / 2, -carLength / 2, carWidth, carLength);
 
@@ -289,6 +293,22 @@ function drawBall(ball) {
     ctx.restore();
 }
 
+function drawPath(carId) {
+    for (position of previousPositions[carId]) {
+        ctx.save();
+        var scaledPos = getScaledPos(position);
+        var x = scaledPos.x;
+        var y = scaledPos.y;
+{#        var radius = positionRadius * scaledPos.z;#}
+        ctx.fillStyle = getColor(carId);
+        ctx.beginPath();
+        ctx.arc(x, y, positionRadius, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
 function updateScore(frame) {
     document.getElementById('blue-score').textContent = frame.scoreboard.team0;
     document.getElementById('red-score').textContent = frame.scoreboard.team1;
@@ -296,19 +316,7 @@ function updateScore(frame) {
 
 function clear() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
-
-    //ctx.lineWidth = 2;
-    //ctx.strokeStyle="black";
-    //ctx.strokeRect(0, goalWidth, canvas.width, canvas.height - 2 * goalWidth);
-
-    // Draw goals
-
-    //ctx.fillStyle = 'blue';
-    //ctx.fillRect(canvas.width / 2 - goalLength / 2, 0, goalLength, goalWidth);
-    //ctx.fillStyle = 'red';
-    //ctx.fillRect(canvas.width / 2 - goalLength / 2, canvas.height - goalWidth, goalLength, goalWidth);
+    ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
 }
 
 var tbl  = document.getElementById('car-table');
@@ -414,6 +422,9 @@ function draw(frames) {
     for (var carId in frame.cars) {
 		var car = frame.cars[carId];
 		drawCar(carId, car, imgOctane);
+		if (pause || trail) {
+            drawPath(carId);
+        }
         updateCar(cars[carId], frame.cars[carId]);
     }
     
