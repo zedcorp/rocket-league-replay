@@ -132,6 +132,8 @@
                 columns : [ {
                   'data' : "datetime",
                   render : function(data, type, row, meta) {
+                    if (type == "sort" || type == 'type')
+                      return data;
                     var date = new Date(data * 1000);
                     return (date.toLocaleDateString() + ' ' + date.toLocaleTimeString().substr(0,5));
                   }
