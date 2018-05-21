@@ -61,7 +61,8 @@
 
 var carLength = 20,
     carWidth = 10,
-    ballRadius = 5,
+    ballRadius = 15,
+    rotationAngleCrt = 0,
     fps = 60,
     zRatio = 8,
     blueColors = ['#0066ff', '#00cc66', '#ccf5ff']
@@ -117,6 +118,9 @@ imgGround.src = '{% static "Ground.png" %}';
 
 var imgOctane = new Image();
 imgOctane.src = '{% static "Octane.png" %}';
+
+var imgBall = new Image();
+imgBall.src = '{% static "Ball.png" %}';
 
 var request = new XMLHttpRequest();
 request.open("GET", '{{ data_url }}', false);
@@ -261,15 +265,23 @@ function drawCar(carId, car, imgCar) {
 
 function drawBall(ball) {
     ctx.save();
-    ctx.fillStyle = 'lightgray';
-    ctx.beginPath();
+
     var scaledPos = getScaledPos(ball.loc);
     var x = scaledPos.x;
     var y = scaledPos.y;
     var radius = ballRadius * scaledPos.z;
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
+
+    ctx.translate(x, y);
+    ctx.rotate(rotationAngleCrt);
+
+    ctx.drawImage(imgBall, -radius / 2, -radius / 2, radius, radius);
+
+    rotationAngleCrt += 0.05;
+
+    if (rotationAngleCrt >= 360) {
+        rotationAngleCrt = 0
+    }
+
     ctx.restore();
 }
 
