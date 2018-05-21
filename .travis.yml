@@ -6,7 +6,12 @@ python:
 
 if: branch IN (master)
 
+before_install:
+  - openssl aes-256-cbc -K $encrypted_07459ba4a5ab_key -iv $encrypted_07459ba4a5ab_iv -in rocketleaguekey.pem.enc -out rocketleaguekey.pem -d
+  - sudo chmod 400 rocketleaguekey.pem
+
 script:
-  - echo "ZOOOOOB"
   - ls
   - pwd
+  - sudo chmod +x ./deploy.sh
+  - ./deploy.sh
