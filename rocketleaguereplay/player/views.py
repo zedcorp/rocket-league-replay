@@ -71,7 +71,7 @@ def matchs(request):
         win = (userPlayer.team == 0 and match.scoreblue > match.scorered) or (userPlayer.team == 1 and match.scoreblue < match.scorered)
         
         data.append({
-          'datetime': match.starttime.strftime("%d/%m/%y %H:%M"),
+          'datetime': match.starttime.timestamp(),
           'name1': nameBlue,
           'name2': nameRed,
           'score1': match.scoreblue,

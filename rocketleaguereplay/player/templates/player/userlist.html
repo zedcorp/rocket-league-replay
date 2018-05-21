@@ -130,7 +130,11 @@
                   "targets" : "_all"
                 } ],
                 columns : [ {
-                  'data' : "datetime"
+                  'data' : "datetime",
+                  render : function(data, type, row, meta) {
+                    var date = new Date(data * 1000);
+                    return (date.toLocaleDateString().substr(0,5) + ' ' + date.toLocaleTimeString().substr(0,5));
+                  }
                 }, {
                   'data' : "name1"
                 }, {
