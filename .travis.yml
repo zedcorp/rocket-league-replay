@@ -11,7 +11,6 @@ before_install:
   - sudo chmod 400 rocketleaguekey.pem
 
 script:
-  - echo "ZOOOOOB"
   - ls
   - pwd
   - sudo chmod +x ./deploy.sh
