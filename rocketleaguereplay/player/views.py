@@ -62,22 +62,22 @@ def matchs(request):
       for match in matchs:
         nameBlue = []
         nameRed = []
-        for matchPlayer in RlPlayer.objects.filter(idmatch = match):
+        for matchPlayer in RlPlayer.objects.filter(idmatch__id = match['id']):
           if matchPlayer.team == 0:
             nameBlue.append(matchPlayer.name)
           if matchPlayer.team == 1:
             nameRed.append(matchPlayer.name)
         
-        win = (userPlayer.team == 0 and match.scoreblue > match.scorered) or (userPlayer.team == 1 and match.scoreblue < match.scorered)
+        win = (userPlayer.team == 0 and match['scoreblue'] > match['scorered']) or (userPlayer.team == 1 and match['scoreblue'] < match['scorered'])
         
         data.append({
-          'datetime': match.starttime.timestamp(),
+          'datetime': match['starttime'].timestamp(),
           'name1': nameBlue,
           'name2': nameRed,
-          'score1': match.scoreblue,
-          'score2': match.scorered,
+          'score1': match['scoreblue'],
+          'score2': match['scorered'],
           'win' : win,
-          'rlmatchid': match.rlmatchid
+          'rlmatchid': match['rlmatchid']
         })
       
 
