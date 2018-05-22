@@ -3,69 +3,66 @@
 <head>
     {% load static %} 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static "player.css" %}">
 </head>
 <body>
     <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
-    <div style="width:400px;text-align: center;">
-        <span id= "blue-score" class="badge badge-primary">0</span>
-        <span id= "red-score" class="badge badge-danger">0</span>
-    </div>
-    <div style="height:10px;"></div>
-    <div>
-        <canvas id="canvas" width="400" height="600"> </canvas>
-    </div>
-    <div style="height:10px;"></div>
-    <form name="menu">
-        <div style="cursor:pointer; width:100%; background-color:grey;" onclick="setProgress(event)">
-            <div id="prog" style="width:0; height:20px; background-color:blue;">
+
+    <div class="row">
+        <div class="column">
+            <table id="car-table">
+                <thead>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="column">
+            <div style="background-color: black;width:100%;padding-bottom:5px;text-align: center;">
+                <span id= "blue-score" class="badge badge-primary">0</span>
+                <span id= "red-score" class="badge badge-danger">0</span>
             </div>
+            <canvas id="canvas" width="400" height="600" class="gamemap"> </canvas>
+            <!-- Menu replay -->
+            <form name="menu">
+                <!-- Progress bar -->
+                <div style="cursor:pointer; width:100%; background-color:grey;" onclick="setProgress(event)">
+                    <div id="prog" style="width:0; height:20px; background-color:blue;">
+                    </div>
+                </div>
+                <!-- Events on progress bar -->
+                <div id="events"></div>
+                <div style="height:10px;"></div>
+                <div class="form-group">
+                    <button id="pause-button" type="button" class="btn btn-primary" onclick="togglePause(event)">Pause</button>
+                </div>
+                <div class="form-group">
+                    <input type="radio" id="fps3" name="fps" value="3" />
+                    <label for="fps3">3</label>
+                    <input type="radio" id="fps5" name="fps" value="5" />
+                    <label for="fps5">5</label>
+                    <input type="radio" id="fps10" name="fps" value="10" />
+                    <label for="fps10">10</label>
+                    <input type="radio" id="fps20" name="fps" value="20" />
+                    <label for="fps20">20</label>
+                    <input type="radio" id="fps30" name="fps" value="30" checked />
+                    <label for="fps30">30</label>
+                    <input type="radio" id="fps60" name="fps" value="60" />
+                    <label for="fps60">60</label>
+                </div>
+                <div class="form-group">
+                    <input type="radio" id="trailTrue"
+                      name="trail" value="ON">
+                    <label for="trailTrue">ON</label>
+
+                    <input type="radio" id="trailFalse"
+                      name="trail" value="OFF" checked>
+                    <label for="trailFalse">OFF</label>
+                </div>
+            </form>
         </div>
-        <div id="events"></div>
-        <div style="height:10px;"></div>
-        <div class="form-group">
-            <button id="pause-button" type="button" class="btn btn-primary" onclick="togglePause(event)">Pause</button>
-        </div>
-        <div class="form-group">
-            <input type="radio" id="fps3"
-             name="fps" value="3">
-            <label for="fps3">3</label>
-
-            <input type="radio" id="fps5"
-             name="fps" value="5">
-            <label for="fps5">5</label>
-
-            <input type="radio" id="fps10"
-             name="fps" value="10">
-            <label for="fps10">10</label>
-
-            <input type="radio" id="fps20"
-             name="fps" value="20">
-            <label for="fps20">20</label>
-
-            <input type="radio" id="fps30"
-                   name="fps" value="30" checked>
-            <label for="fps30">30</label>
-
-            <input type="radio" id="fps60"
-             name="fps" value="60">
-            <label for="fps60">60</label>
-        </div>
-        <div class="form-group">
-            <input type="radio" id="trailTrue"
-                   name="trail" value="ON">
-            <label for="trailTrue">ON</label>
-
-            <input type="radio" id="trailFalse"
-                   name="trail" value="OFF" checked>
-            <label for="trailFalse">OFF</label>
-        </div>
-    </form>
-    <table id="car-table">
-        <thead>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+        <div class="column"></div>
+    </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
@@ -208,6 +205,15 @@ function getColor(carId) {
     return (cars[carId].team == 'red') ? redColors[[cars[carId].colour]] : blueColors[[cars[carId].colour]];
 }
 
+function getCanvasDim() {
+  var width = canvas.parentElement.offsetWidth;
+  var height = Math.floor(width*1.3333);
+  return {
+    w: width,
+    h: height
+  }
+}
+
 // Draw events
 var events = document.getElementById('events');
 for (var goal of goals) {
@@ -216,7 +222,7 @@ for (var goal of goals) {
     span.style.fontWeight = 'bold';
     span.style.position = 'absolute';
     span.style.color = goal.team;
-    span.style.marginLeft = (goal.frame * 100 / totalFrames) + '%';
+    span.style.marginLeft = Math.floor((goal.frame / totalFrames) * getCanvasDim().w) + 'px';
     span.style.float = 'left';
     events.appendChild(span);
 }
@@ -227,10 +233,14 @@ var xRange = Math.max( ...xs ) - Math.min( ...xs );
 var yRange = Math.max( ...ys ) - Math.min( ...ys );
 var zRange = Math.max( ...zs ) - Math.min( ...zs );
 
+
+
 function getScaledPos(loc) {
+  
+    var canvasDims = getCanvasDim();
     return {
-        x: Math.floor((loc.x * canvas.width / xRange) + (canvas.width / 2)),
-        y: Math.floor((loc.y * canvas.height / yRange) + (canvas.height / 2)),
+        x: Math.floor((loc.x * canvasDims.w / xRange) + (canvasDims.w / 2)),
+        y: Math.floor((loc.y * canvasDims.h / yRange) + (canvasDims.h / 2)),
         z: 1 + (loc.z * zRatio / zRange)
     };
 }
@@ -316,8 +326,13 @@ function updateScore(frame) {
 }
 
 function clear() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(imgGround, -30, -30, canvas.width + 60, canvas.height + 60);
+    var canvasDims = getCanvasDim();
+    canvas.width = canvasDims.w;
+    canvas.height = canvasDims.h;
+    ctx.clearRect(0, 0, canvasDims.w, canvasDims.h);
+    //ctx.drawImage(imgGround, -30, -30, canvas.offsetWidth + 60, canvas.height + 60);
+    ctx.drawImage(imgGround, -30, -30, canvasDims.w +60, canvasDims.h+60);
+
 }
 
 var tbl  = document.getElementById('car-table');
@@ -354,7 +369,6 @@ for (var carId in cars) {
     boost.appendChild(document.createTextNode(car.boost));
 }
 
-document.body.appendChild(tbl);
 
 
 
@@ -398,17 +412,14 @@ function updateTable(frame) {
 function updateProgress() {
     var prog = document.getElementById('prog');
     var done = (index / totalFrames) * 100;
-    var width = window.innerWidth
-|| document.documentElement.clientWidth
-|| document.body.clientWidth;
+    var width = prog.parentElement.offsetWidth;
     prog.style.width = Math.floor((index / totalFrames) * width);
 }
 
 function setProgress(event) {
-    var width = window.innerWidth
-|| document.documentElement.clientWidth
-|| document.body.clientWidth;
-    index = Math.floor(event.clientX * totalFrames / width);
+    var barLeft = event.currentTarget.offsetLeft;
+    var barRight = barLeft + event.currentTarget.offsetWidth;
+    index = Math.floor( (event.clientX-barLeft) * totalFrames / event.currentTarget.offsetWidth);
 }
 
 function draw(frames) {
@@ -421,9 +432,9 @@ function draw(frames) {
         console.log(frame);
     }
     for (var carId in frame.cars) {
-		var car = frame.cars[carId];
-		drawCar(carId, car, imgOctane);
-		if (pause || trail) {
+    var car = frame.cars[carId];
+    drawCar(carId, car, imgOctane);
+    if (pause || trail) {
             drawPath(carId);
         }
         updateCar(cars[carId], frame.cars[carId]);
