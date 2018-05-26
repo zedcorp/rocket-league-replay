@@ -1,0 +1,15 @@
+<h2>My Players</h2>
+<ul class="players" style="width: 100%;">
+  <li *ngFor="let player of players"
+      (click)="switchMatches(player)"
+      style="width: 100%; text-align: left;">
+    <!--<a routerLink="/detail/{{player.id}}" style="float: left; width: 100%;">-->
+    <div>
+      <span class="badge">{{player.id}}</span> {{player.name}}
+      <div *ngIf="player.showMatches">
+        MATCHES !!!
+      </div>
+    </div>
+    <!--</a>-->
+  </li>
+</ul>

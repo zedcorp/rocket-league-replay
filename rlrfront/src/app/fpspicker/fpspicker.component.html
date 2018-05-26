@@ -1,0 +1,7 @@
+<span *ngFor="let option of fpsOptions">
+  <input
+         type="radio"
+         [value]="option"
+         name="radiogroup"
+         [(ngModel)]="fps"> {{option}}
+</span>

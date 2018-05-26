@@ -1,0 +1,19 @@
+<div *ngIf="player">
+  <h2>{{ player.name | uppercase }} Details</h2>
+  <div><span>id: </span>{{player.id}}</div>
+  <div><span>name: </span>{{player.name}}</div>
+  <div><span>nbmatchs: </span>{{player.nbmatchs}}</div>
+  <div><span>nbwin: </span>{{player.nbwin}}</div>
+  <div><span>nblose: </span>{{player.nblose}}</div>
+  <div><span>pwin: </span>{{player.pwin | number: '1.0-0'}}</div>
+  <div><span>pscore: </span>{{player.pscore | number: '1.0-0'}}</div>
+  <div><span>nbgoalpermatch: </span>{{player.nbgoalpermatch | number: '1.0-2'}}</div>
+  <div><span>nbassistpermatch: </span>{{player.nbassistpermatch | number: '1.0-2'}}</div>
+  <div><span>nbsavepermatch: </span>{{player.nbsavepermatch | number: '1.0-2'}}</div>
+  <div><span>score: </span>{{player.score}}</div>
+  <div><span>nbgoal: </span>{{player.nbgoal}}</div>
+  <div><span>nbassist: </span>{{player.nbassist}}</div>
+  <div><span>nbsave: </span>{{player.nbsave}}</div>
+</div>
+
+<button (click)="goBack()">go back</button>
