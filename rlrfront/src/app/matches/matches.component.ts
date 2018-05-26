@@ -13,9 +13,8 @@ export class MatchesComponent implements OnInit {
   @Input() player: Player;
   matches: Match[];
 
-  constructor(
-    private matchService: MatchService
-  ) { }
+  constructor(private matchService: MatchService) {
+  }
 
   ngOnInit() {
     this.getMatches();

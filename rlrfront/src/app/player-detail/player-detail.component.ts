@@ -1,9 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Player } from '../models/player';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import {Component, Input, OnInit} from '@angular/core';
+import {Player} from '../models/player';
+import {ActivatedRoute} from '@angular/router';
+import {Location} from '@angular/common';
 
-import { PlayerService } from '../player.service';
+import {PlayerService} from '../player.service';
 
 @Component({
   selector: 'app-player-detail',
@@ -15,11 +15,10 @@ export class PlayerDetailComponent implements OnInit {
 
   @Input() player: Player;
 
-  constructor(
-    private route: ActivatedRoute,
-    private playerService: PlayerService,
-    private location: Location
-  ) { }
+  constructor(private route: ActivatedRoute,
+              private playerService: PlayerService,
+              private location: Location) {
+  }
 
   getPlayer(): void {
     const id = this.route.snapshot.paramMap.get('id');

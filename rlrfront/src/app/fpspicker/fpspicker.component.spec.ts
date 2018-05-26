@@ -1,6 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { FpspickerComponent } from './fpspicker.component';
+import {FpspickerComponent} from './fpspicker.component';
 
 describe('FpspickerComponent', () => {
   let component: FpspickerComponent;
@@ -8,9 +8,9 @@ describe('FpspickerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FpspickerComponent ]
+      declarations: [FpspickerComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

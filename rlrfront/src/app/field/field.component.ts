@@ -31,9 +31,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas') canvas;
 
-  constructor(
-    private replayService: ReplayService
-  ) { }
+  constructor(private replayService: ReplayService) {
+  }
 
   ngOnInit() {
     this.imgGround.src = '/assets/Ground.png';
@@ -73,9 +72,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
       });
     });
 
-    this.xRange = Math.max( ...xs ) - Math.min( ...xs );
-    this.yRange = Math.max( ...ys ) - Math.min( ...ys );
-    this.zRange = Math.max( ...zs ) - Math.min( ...zs );
+    this.xRange = Math.max(...xs) - Math.min(...xs);
+    this.yRange = Math.max(...ys) - Math.min(...ys);
+    this.zRange = Math.max(...zs) - Math.min(...zs);
   }
 
   clear() {

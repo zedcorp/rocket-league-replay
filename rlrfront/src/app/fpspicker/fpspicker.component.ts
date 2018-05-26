@@ -10,7 +10,8 @@ export class FpspickerComponent implements OnInit {
   fpsOptions: number[] = [5, 10, 30, 60];
   @Output() fps = 60;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
   }

@@ -10,9 +10,8 @@ export class ReplayService {
 
   private url = 'http://localhost:8000/rest/';
 
-  constructor(
-    private http: HttpClient
-  ) { }
+  constructor(private http: HttpClient) {
+  }
 
   getReplay(id: string): Observable<Frame[]> {
     return this.http.get<Frame[]>(this.url + 'replays/' + id);
