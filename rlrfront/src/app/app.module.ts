@@ -3,9 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-
 import { AppComponent } from './app.component';
 import { PlayersComponent } from './players/players.component';
 import { PlayerDetailComponent } from './player-detail/player-detail.component';
@@ -35,9 +32,7 @@ import { FieldComponent } from './field/field.component';
     BrowserModule,
     FormsModule,
     AppRoutingModule,
-    HttpClientModule,
-    NgbModule.forRoot(),
-    BrowserAnimationsModule
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],
