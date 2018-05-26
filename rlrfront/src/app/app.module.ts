@@ -5,7 +5,6 @@ import { HttpClientModule } from '@angular/common/http';
 
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatMenuModule, MatIconModule, MatButtonModule, MatCheckboxModule} from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { PlayersComponent } from './players/players.component';

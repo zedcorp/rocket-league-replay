@@ -14,5 +14,5 @@ echo ">> Stop frontend (WIP)"
 echo ">> Update frontend dependencies"
 ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay/rlrfront && npm install"
 
-echo ">> Start frontend"
-ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay/rlrfront && npm start"
+#echo ">> Start frontend"
+#ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay/rlrfront && npm start"
