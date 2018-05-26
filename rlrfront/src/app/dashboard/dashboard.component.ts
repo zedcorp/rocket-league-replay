@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Player} from '../player';
+import {Player} from '../models/player';
 import {PlayerService} from '../player.service';
 
 @Component({
@@ -18,6 +18,6 @@ export class DashboardComponent implements OnInit {
 
   getPlayers(): void {
     this.playerService.getPlayers()
-      .subscribe(players => this.players = players.slice(1, 5));
+      .subscribe(players => this.players = players.slice(0, 5));
   }
 }

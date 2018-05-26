@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Player} from "../player";
+import {Player} from '../models/player';
 import { PlayerService } from '../player.service';
 
 @Component({
@@ -13,13 +13,16 @@ export class PlayersComponent implements OnInit {
 
   constructor(private playerService: PlayerService) { }
 
-  getPlayers(): void {
-    this.playerService.getPlayers()
-      .subscribe(players => this.players = players);;
-  }
-
   ngOnInit() {
     this.getPlayers();
   }
 
+  getPlayers(): void {
+    this.playerService.getPlayers()
+      .subscribe(players => this.players = players);
+  }
+
+  switchMatches(player: Player) {
+    player.showMatches = !player.showMatches;
+  }
 }

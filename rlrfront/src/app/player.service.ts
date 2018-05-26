@@ -1,24 +1,24 @@
 import { Injectable } from '@angular/core';
-import {Player} from "./player";
-import { PLAYERS } from './mock-players';
-import { Observable, of } from 'rxjs';
-import { MessageService } from './message.service';
+import {Player} from './models/player';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlayerService {
 
-  constructor(private messageService: MessageService) { }
+  private playersUrl = 'http://localhost:8000/rest/';  // URL to web api
+
+  constructor(
+    private http: HttpClient
+  ) { }
 
   getPlayers(): Observable<Player[]> {
-    this.messageService.add('HeroService: fetched heroes');
-    return of(PLAYERS);
+    return this.http.get<Player[]>(this.playersUrl + 'list_players');
   }
 
   getPlayer(id: string): Observable<Player> {
-    // TODO: send the message _after_ fetching the player
-    this.messageService.add(`PlayerService: fetched player id=${id}`);
-    return of(PLAYERS.find(player => player.id === id));
+    return this.http.get<Player>(this.playersUrl + 'players/' + id);
   }
 }

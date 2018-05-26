@@ -1,9 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Player } from '../player';
+import { Player } from '../models/player';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
-import { PlayerService }  from '../player.service';
+import { PlayerService } from '../player.service';
 
 @Component({
   selector: 'app-player-detail',
