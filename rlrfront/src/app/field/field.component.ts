@@ -19,6 +19,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   frames: Frame[];
   ctx: CanvasRenderingContext2D;
   // imgGround = new HTMLImageElement();
+  pause = false;
   imgGround = new Image();
   imgBall = new Image();
   imgCar = new Image();
@@ -54,6 +55,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.imgGround.src = '/assets/Ground.png';
+    // this.imgGround.src = '/assets/wireground.jpg';
     this.imgBall.src = '/assets/Ball.png';
     this.imgCar.src = '/assets/Octane.png';
     this.replayService.getReplay(this.matchId)
@@ -105,6 +107,10 @@ export class FieldComponent implements OnInit, AfterViewInit {
       return;
     }
     this.speedRatio = this.availableSpeedRatios[i - 1];
+  }
+
+  togglePause() {
+    this.pause = !this.pause;
   }
 
   // Data
@@ -216,7 +222,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
       return;
     }
     this.clear();
-    this.index = this.index + 1;
+    if (!this.pause) {
+      this.index = this.index + 1;
+    }
     const frame = this.frames[this.index];
     this.drawCars(frame.cars);
     this.drawBall(frame.ball);
