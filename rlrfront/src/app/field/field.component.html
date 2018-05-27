@@ -30,16 +30,25 @@
       <!-- Events on progress bar -->
       <div class="row" style="margin-top: 5px;">
         <div id="events">
-          <span
+          <i
             *ngFor="let goal of goals"
-            class="{{goal.color}}"
+            class="fas fa-volleyball-ball {{goal.color}}"
             [ngStyle]="{
             'margin-left': goal.offset + 'px',
             'font-weight': 'bold',
             'position': 'absolute',
             'float': 'left'
-            }"
-          >G</span>
+            }"></i>
+          <!--<span-->
+            <!--*ngFor="let goal of goals"-->
+            <!--class="{{goal.color}}"-->
+            <!--[ngStyle]="{-->
+            <!--'margin-left': goal.offset + 'px',-->
+            <!--'font-weight': 'bold',-->
+            <!--'position': 'absolute',-->
+            <!--'float': 'left'-->
+            <!--}"-->
+          <!--&gt;G</span>-->
         </div>
       </div>
 
