@@ -1,1 +1,49 @@
-<canvas #canvas width="400" height="600"></canvas>
+<div class="container">
+
+
+  <div class="row">
+    <div class="col-sm">
+      <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}"></canvas>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button (click)="decreaseSpeed()" style="width: 74px;" type="button" class="btn btn-secondary">Slower</button>
+        <button type="button" style="width: 61px;" class="btn btn-secondary" disabled>X {{speedRatio}}</button>
+        <button (click)="increaseSpeed()" style="width: 74px;" type="button" class="btn btn-secondary">Faster</button>
+      </div>
+    </div>
+    <div class="col-sm">
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th scope="col">Player</th>
+          <th scope="col">Score</th>
+          <th scope="col">Goals</th>
+          <th scope="col">Assists</th>
+          <th scope="col">Saves</th>
+          <th scope="col">Shots</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let car of reds" class="red-player">
+          <td>{{car.name}}</td>
+          <td>{{car.scoreboard.score}}</td>
+          <td>{{car.scoreboard.goals}}</td>
+          <td>{{car.scoreboard.assists}}</td>
+          <td>{{car.scoreboard.saves}}</td>
+          <td>{{car.scoreboard.shots}}</td>
+        </tr>
+        <tr *ngFor="let car of blues" class="blue-player">
+          <td>{{car.name}}</td>
+          <td>{{car.scoreboard.score}}</td>
+          <td>{{car.scoreboard.goals}}</td>
+          <td>{{car.scoreboard.assists}}</td>
+          <td>{{car.scoreboard.saves}}</td>
+          <td>{{car.scoreboard.shots}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
