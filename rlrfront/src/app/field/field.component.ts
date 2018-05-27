@@ -205,6 +205,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   updatePreviousPositions(cars: Car[]) {
+    if (this.pause) {
+      return;
+    }
     Object.entries(cars).forEach(([carId, car]) => {
       if (!this.previousPositions[carId]) {
         this.previousPositions[carId] = [];
@@ -274,7 +277,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     this.ctx.restore();
 
-    if (this.pause || this.path) {
+    if (this.path) {
       this.drawPath(id);
     }
   }
