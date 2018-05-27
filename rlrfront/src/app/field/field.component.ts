@@ -6,7 +6,7 @@ import {Car} from '../models/car.model';
 import {Coordinates} from '../models/coordinates.model';
 import {Ball} from '../models/ball.model';
 import {Team} from '../models/team';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-field',
@@ -18,9 +18,10 @@ export class FieldComponent implements OnInit, AfterViewInit {
   matchId;
   frames: Frame[];
   ctx: CanvasRenderingContext2D;
-  // imgGround = new HTMLImageElement();
   pause = false;
   imgGround = new Image();
+  imgGroundBoosts = new Image();
+  showBoosts = true;
   imgBall = new Image();
   imgCar = new Image();
   fieldWidth = 400;
@@ -55,7 +56,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.imgGround.src = '/assets/Ground.png';
-    // this.imgGround.src = '/assets/wireground.jpg';
+    this.imgGroundBoosts.src = '/assets/groundboosts.png';
     this.imgBall.src = '/assets/Ball.png';
     this.imgCar.src = '/assets/Octane.png';
     this.replayService.getReplay(this.matchId)
@@ -109,10 +110,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.speedRatio = this.availableSpeedRatios[i - 1];
   }
 
-  togglePause() {
-    this.pause = !this.pause;
-  }
-
   // Data
 
   getData(frames: Frame[]) {
@@ -162,8 +159,11 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   clear() {
     this.ctx.clearRect(0, 0, this.fieldWidth, this.fieldHeight);
-    this.ctx.drawImage(this.imgGround, -30, -30, this.fieldWidth + 60, this.fieldHeight + 60);
-    // this.ctx.drawImage(this.imgGround, 0, 0, this.fieldWidth + 60, this.fieldHeight + 60);
+    if (this.showBoosts) {
+      this.ctx.drawImage(this.imgGroundBoosts, -5, -40, this.fieldWidth + 10, this.fieldHeight + 80);
+    } else {
+      this.ctx.drawImage(this.imgGround, -30, -30, this.fieldWidth + 60, this.fieldHeight + 60);
+    }
   }
 
   getScaledPos(loc: Coordinates) {
