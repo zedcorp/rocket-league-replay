@@ -3,20 +3,48 @@
 
   <div class="row">
     <div class="col-sm">
+      <!-- Score -->
+      <div class="row">
+        <span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-primary">{{blueScore}}</span>
+        <span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-danger">{{redScore}}</span>
+      </div>
+
+      <!-- Field -->
       <div class="row">
         <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}"></canvas>
+      </div>
+
+      <!-- Time -->
+      <div class="row" style="margin-top: 10px;">
+        {{timeDisplay}}
       </div>
 
       <!-- Progress bar -->
       <div class="row" style="margin-top: 10px;">
         <div id="total-prog" style="cursor:pointer; width:100%; background-color:grey;" (click)="setProgress($event)">
-          <div id="prog" [ngStyle]="{'width':progressWidth + 'px'}" style="height:20px; background-color:blue;">
+          <div id="prog" [ngStyle]="{'width': progressWidth + 'px'}" style="height:20px; background-color:#007bff;">
           </div>
         </div>
       </div>
 
+      <!-- Events on progress bar -->
+      <div class="row" style="margin-top: 5px;">
+        <div id="events">
+          <span
+            *ngFor="let goal of goals"
+            class="{{goal.color}}"
+            [ngStyle]="{
+            'margin-left': goal.offset + 'px',
+            'font-weight': 'bold',
+            'position': 'absolute',
+            'float': 'left'
+            }"
+          >G</span>
+        </div>
+      </div>
+
       <!-- Menu replay -->
-      <div class="row" style="margin-top: 10px;">
+      <div class="row" style="margin-top: 30px;">
         <div class="btn-group" role="group" aria-label="Basic example">
           <button (click)="decreaseSpeed()" style="width: 74px;" type="button" class="btn btn-primary">Slower</button>
           <button type="button" style="width: 61px;" class="btn btn-secondary" disabled>X {{speedRatio}}</button>
@@ -37,9 +65,11 @@
       </div>
     </div>
     <div class="col-sm">
+      <!-- Scoreboard -->
       <table class="table table-bordered">
         <thead>
         <tr>
+          <th scope="col"></th>
           <th scope="col">Player</th>
           <th scope="col">Score</th>
           <th scope="col">Goals</th>
@@ -50,6 +80,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let car of reds" class="red-player">
+          <td [ngStyle]="{'background-color': carColors[car.id], 'width': '20px'}"></td>
           <td>{{car.name}}</td>
           <td>{{car.scoreboard.score}}</td>
           <td>{{car.scoreboard.goals}}</td>
@@ -58,6 +89,7 @@
           <td>{{car.scoreboard.shots}}</td>
         </tr>
         <tr *ngFor="let car of blues" class="blue-player">
+          <td [ngStyle]="{'background-color': carColors[car.id], 'width': '20px'}"></td>
           <td>{{car.name}}</td>
           <td>{{car.scoreboard.score}}</td>
           <td>{{car.scoreboard.goals}}</td>

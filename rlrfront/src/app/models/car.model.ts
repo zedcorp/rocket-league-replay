@@ -3,6 +3,7 @@ import {CarScoreBoard} from './car-scoreboard.model';
 import {Team} from './team';
 
 export class Car {
+  id: string;
   name: string;
   team: Team;
   ping: number;

@@ -24,8 +24,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
   showBoosts = true;
   imgBall = new Image();
   imgCar = new Image();
-  fieldWidth = 200;
-  fieldHeight = 300;
+  fieldWidth = 300;
+  fieldHeight = 450;
   carLength = 20;
   carWidth = 10;
   speedRatio = 1;
@@ -50,6 +50,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
   positionRadius = 2;
   progressWidth = 0;
   totalFrames;
+  blueScore = 0;
+  redScore = 0;
+  previousBlueScore = 0;
+  previousRedScore = 0;
+  goals = [];
+  timeDisplay: string;
+  totalSeconds: number;
 
   @ViewChild('canvas') canvas;
 
@@ -68,9 +75,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.replayService.getReplay(this.matchId)
       .subscribe(frames => {
         // this.frames = frames.slice(0, 1);
+        console.log('frames', frames.length);
+        console.log('frames[0]', frames[0]);
+        console.log('last frame', frames[frames.length - 1]);
         this.frames = frames;
         this.getData(this.frames);
-        console.log(this.frames[0]);
+        console.log(this.goals);
+        console.log('this.frames[0]', this.frames[0]);
         this.initTeams(this.frames[0]);
         this.drawFrames();
       });
@@ -118,22 +129,21 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   setProgress(event) {
-    console.log(event);
-    console.log(event.offsetX);
     const totalWidth = document.getElementById('total-prog').offsetWidth;
-    this.index = Math.floor( event.offsetX * this.totalFrames / totalWidth);
+    this.index = Math.trunc( event.offsetX * this.totalFrames / totalWidth);
   }
 
   // Data
 
   getData(frames: Frame[]) {
     this.totalFrames = frames.length;
+    this.totalSeconds = Math.trunc(this.frames[this.frames.length - 10].time);
 
     const xs = [];
     const ys = [];
     const zs = [];
 
-    frames.forEach(frame => {
+    frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
         if (car.loc.x !== null) {
           xs.push(car.loc.x);
@@ -145,11 +155,34 @@ export class FieldComponent implements OnInit, AfterViewInit {
           zs.push(car.loc.z);
         }
       });
+
+      if (frame.scoreboard.team1 > this.previousRedScore) {
+        this.previousRedScore = frame.scoreboard.team1;
+        this.goals.push({
+          team: Team.RED,
+          color: 'red',
+          frame: frameIndex,
+          offset: this.getGoalMargin(frameIndex)
+        });
+      }
+      if (frame.scoreboard.team0 > this.previousBlueScore) {
+        this.previousBlueScore = frame.scoreboard.team0;
+        this.goals.push({
+          team: Team.BLUE,
+          color: 'blue',
+          frame: frameIndex,
+          offset: this.getGoalMargin(frameIndex)
+        });
+      }
     });
 
     this.xRange = Math.max(...xs) - Math.min(...xs);
     this.yRange = Math.max(...ys) - Math.min(...ys);
     this.zRange = Math.max(...zs) - Math.min(...zs);
+  }
+
+  getGoalMargin(frameIndex) {
+    return Math.trunc((frameIndex / this.totalFrames) * document.getElementById('total-prog').offsetWidth);
   }
 
   updateTeams(frame: Frame) {
@@ -186,11 +219,22 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   updateProgress() {
     const prog = document.getElementById('prog');
-    // this.progress = (this.index / this.totalFrames) * 100;
     const width = prog.parentElement.offsetWidth;
-    // console.log('width', width);
-    this.progressWidth = Math.floor((this.index / this.totalFrames) * width);
-    // prog.style.width = String(Math.floor((this.index / this.totalFrames) * width));
+    this.progressWidth = Math.trunc((this.index / this.totalFrames) * width);
+  }
+
+  setCarIds(cars: Car[]) {
+    Object.entries(cars).forEach(([carId, car]) => {
+      car.id = carId;
+    });
+  }
+
+  updateTime(frame: Frame) {
+    // console.log(this.totalSeconds);
+    const frameSeconds = Math.trunc(frame.time);
+    const frameMinutes = Math.trunc(frameSeconds / 60);
+    const totalMinutes = Math.trunc(this.totalSeconds / 60);
+    this.timeDisplay = frameMinutes + ':' + frameSeconds % 60 + ' / ' + totalMinutes + ':' + this.totalSeconds % 60;
   }
 
   // Draw
@@ -206,8 +250,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   getScaledPos(loc: Coordinates) {
     return {
-      x: Math.floor((loc.x * this.fieldWidth / this.xRange) + (this.fieldWidth / 2)),
-      y: Math.floor((loc.y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
+      x: Math.trunc((loc.x * this.fieldWidth / this.xRange) + (this.fieldWidth / 2)),
+      y: Math.trunc((loc.y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
       z: 1 + (loc.z * this.zRatio / this.zRange)
     };
   }
@@ -285,6 +329,15 @@ export class FieldComponent implements OnInit, AfterViewInit {
       this.index = this.index + 1;
     }
     const frame = this.frames[this.index];
+
+    if (this.index % 5 === 0) {
+      this.updateTime(frame);
+    }
+
+    this.blueScore = frame.scoreboard.team0;
+    this.redScore = frame.scoreboard.team1;
+
+    this.setCarIds(frame.cars);
 
     this.updatePreviousPositions(frame.cars);
     this.updateProgress();

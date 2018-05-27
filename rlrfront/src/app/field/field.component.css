@@ -7,3 +7,17 @@
   color: #721c24;
   background-color: #f8d7da;
 }
+
+.goal {
+  font-weight: bold !important;
+  position: absolute !important;
+  float: left !important;
+}
+
+.red {
+  color: red;
+}
+
+.blue {
+  color: blue;
+}
