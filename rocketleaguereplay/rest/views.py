@@ -103,3 +103,33 @@ def replay(request, match_id):
     print("SIZE: " + str(len(match[0].replayjson)))
     response = HttpResponse(content=match[0].replayjson)
     return response
+
+
+def replays(request):
+    userPlayers = RlPlayer.objects.filter(userid = request.GET.get('userid'))
+
+    data = []
+
+    for userPlayer in userPlayers:
+        matchs = RlMatch.objects.filter(id = userPlayer.idmatch_id).values('id','rlmatchid','scoreblue','scorered','duration','starttime')
+        for match in matchs:
+            nameBlue = []
+            nameRed = []
+            for matchPlayer in RlPlayer.objects.filter(idmatch__id = match['id']):
+                if matchPlayer.team == 0:
+                    nameBlue.append(matchPlayer.name)
+                if matchPlayer.team == 1:
+                    nameRed.append(matchPlayer.name)
+
+            win = (userPlayer.team == 0 and match['scoreblue'] > match['scorered']) or (userPlayer.team == 1 and match['scoreblue'] < match['scorered'])
+
+            data.append({
+                'datetime': match['starttime'].timestamp(),
+                'name1': nameBlue,
+                'name2': nameRed,
+                'score1': match['scoreblue'],
+                'score2': match['scorered'],
+                'win' : win,
+                'rlmatchid': match['rlmatchid']
+            })
+    return HttpResponse(json.dumps(data))

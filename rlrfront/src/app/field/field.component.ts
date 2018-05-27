@@ -6,6 +6,7 @@ import {Car} from '../models/car.model';
 import {Coordinates} from '../models/coordinates.model';
 import {Ball} from '../models/ball.model';
 import {Team} from '../models/team';
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-field',
@@ -14,6 +15,7 @@ import {Team} from '../models/team';
 })
 export class FieldComponent implements OnInit, AfterViewInit {
 
+  matchId;
   frames: Frame[];
   ctx: CanvasRenderingContext2D;
   // imgGround = new HTMLImageElement();
@@ -37,12 +39,16 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas') canvas;
 
-  constructor(private replayService: ReplayService) {
+  constructor(
+    private replayService: ReplayService,
+    private route: ActivatedRoute
+  ) {
+    this.route.params.subscribe(params => this.matchId = params.id);
   }
 
   ngOnInit() {
     this.imgGround.src = '/assets/Ground.png';
-    this.replayService.getReplay('CD779071408ED02DC053678CCE045394')
+    this.replayService.getReplay(this.matchId)
       .subscribe(frames => {
         // this.frames = frames.slice(0, 1);
         this.frames = frames;

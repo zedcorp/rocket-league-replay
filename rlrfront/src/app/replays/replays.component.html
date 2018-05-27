@@ -1,0 +1,16 @@
+<table class="table table-bordered">
+  <tbody>
+  <tr
+    *ngFor="let replay of replays"
+    routerLink="/replays/{{replay.rlmatchid}}"
+    style="cursor: pointer;"
+    [class.alert-danger]="!replay.win"
+    [class.alert-success]="replay.win">
+    <td>{{replay.datetime * 1000 | date}}</td>
+    <td>{{replay.name1}}</td>
+    <td>{{replay.score1}}</td>
+    <td>{{replay.score2}}</td>
+    <td>{{replay.name2}}</td>
+  </tr>
+  </tbody>
+</table>

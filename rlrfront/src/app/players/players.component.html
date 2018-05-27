@@ -1,15 +1,38 @@
-<h2>My Players</h2>
-<ul class="players" style="width: 100%;">
-  <li *ngFor="let player of players"
-      (click)="switchMatches(player)"
-      style="width: 100%; text-align: left;">
-    <!--<a routerLink="/detail/{{player.id}}" style="float: left; width: 100%;">-->
-    <div>
-      <span class="badge">{{player.id}}</span> {{player.name}}
-      <div *ngIf="player.showMatches">
-        MATCHES !!!
-      </div>
-    </div>
-    <!--</a>-->
-  </li>
-</ul>
+<table class="table table-bordered table-hover table-dark">
+  <thead>
+  <tr>
+    <th scope="col">ID</th>
+    <th scope="col">Name</th>
+    <th scope="col">Games</th>
+    <th scope="col">Wins</th>
+    <th scope="col">Loses</th>
+    <th scope="col">Win %</th>
+    <th scope="col">Score/M</th>
+    <th scope="col">Goals/M</th>
+    <th scope="col">Assists/M</th>
+    <th scope="col">Saves/M</th>
+    <th scope="col">Score</th>
+    <th scope="col">Goals</th>
+    <th scope="col">Assists</th>
+    <th scope="col">Saves</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let player of players" routerLink="/players/{{player.id}}" style="cursor: pointer;">
+    <td>{{player.id}}</td>
+    <td>{{player.name}}</td>
+    <td>{{player.nbmatchs}}</td>
+    <td>{{player.nbwin}}</td>
+    <td>{{player.nblose}}</td>
+    <td>{{player.pwin | number: '1.0-0'}}</td>
+    <td>{{player.pscore | number: '1.0-0'}}</td>
+    <td>{{player.nbgoalpermatch | number: '1.0-2'}}</td>
+    <td>{{player.nbassistpermatch | number: '1.0-2'}}</td>
+    <td>{{player.nbsavepermatch | number: '1.0-2'}}</td>
+    <td>{{player.score}}</td>
+    <td>{{player.nbgoal}}</td>
+    <td>{{player.nbassist}}</td>
+    <td>{{player.nbsave}}</td>
+  </tr>
+  </tbody>
+</table>

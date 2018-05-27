@@ -11,9 +11,9 @@ import {AppRoutingModule} from './/app-routing.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {MatchesComponent} from './matches/matches.component';
 import {MenuComponent} from './menu/menu.component';
-import {ReplayComponent} from './replay/replay.component';
 import {FpspickerComponent} from './fpspicker/fpspicker.component';
 import {FieldComponent} from './field/field.component';
+import { ReplaysComponent } from './replays/replays.component';
 
 @NgModule({
   declarations: [
@@ -24,9 +24,9 @@ import {FieldComponent} from './field/field.component';
     DashboardComponent,
     MatchesComponent,
     MenuComponent,
-    ReplayComponent,
     FpspickerComponent,
-    FieldComponent
+    FieldComponent,
+    ReplaysComponent
   ],
   imports: [
     BrowserModule,

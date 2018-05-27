@@ -3,17 +3,19 @@ import {RouterModule, Routes} from '@angular/router';
 import {PlayersComponent} from './players/players.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {PlayerDetailComponent} from './player-detail/player-detail.component';
-import {ReplayComponent} from "./replay/replay.component";
-import {FpspickerComponent} from "./fpspicker/fpspicker.component";
-import {FieldComponent} from "./field/field.component";
+import {FpspickerComponent} from './fpspicker/fpspicker.component';
+import {FieldComponent} from './field/field.component';
+import {ReplaysComponent} from './replays/replays.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
+  {path: '', redirectTo: '/players', pathMatch: 'full'},
   {path: 'dashboard', component: DashboardComponent},
-  {path: 'replay', component: ReplayComponent},
+  {path: 'replays', component: ReplaysComponent},
+  {path: 'replays/:id', component: FieldComponent},
   {path: 'fps', component: FpspickerComponent},
   {path: 'field', component: FieldComponent},
   {path: 'players', component: PlayersComponent},
+  {path: 'players/:id', component: ReplaysComponent},
   {path: 'detail/:id', component: PlayerDetailComponent}
 ];
 
