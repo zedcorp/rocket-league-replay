@@ -44,6 +44,10 @@ export class FieldComponent implements OnInit, AfterViewInit {
   ballAngle = 0;
   blueColors = ['#0066ff', '#00cc66', '#ccf5ff'];
   redColors = ['#ffff00', '#ff9900', '#ff0000'];
+  previousPositions = {};
+  storedPositionsCount = 20;
+  path = false;
+  positionRadius = 2;
 
   @ViewChild('canvas') canvas;
 
@@ -155,6 +159,19 @@ export class FieldComponent implements OnInit, AfterViewInit {
     return car2.scoreboard.score - car1.scoreboard.score;
   }
 
+  updatePreviousPositions(cars: Car[]) {
+    Object.entries(cars).forEach(([carId, car]) => {
+      if (!this.previousPositions[carId]) {
+        this.previousPositions[carId] = [];
+      } else if (this.index % 3 === 0) {
+        if (this.previousPositions[carId].length > this.storedPositionsCount) {
+          this.previousPositions[carId].shift();
+        }
+        this.previousPositions[carId].push(car.loc);
+      }
+    });
+  }
+
   // Draw
 
   clear() {
@@ -191,6 +208,27 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.ctx.drawImage(this.imgCar, -this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
 
     this.ctx.restore();
+
+    if (this.pause || this.path) {
+      this.drawPath(id);
+    }
+  }
+
+  drawPath(carId) {
+    for (const position of this.previousPositions[carId]) {
+      this.ctx.save();
+      const scaledPos = this.getScaledPos(position);
+      const x = scaledPos.x;
+      const y = scaledPos.y;
+      const radius = this.positionRadius * scaledPos.z;
+      this.ctx.translate(x, y);
+      this.ctx.fillStyle = this.carColors[carId];
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+    }
   }
 
   drawCars(cars: Car[]) {
@@ -209,7 +247,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.ctx.rotate(this.ballAngle);
     this.ctx.drawImage(this.imgBall, -radius / 2, -radius / 2, radius, radius);
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    this.ballAngle += 0.05;
+    this.ballAngle += this.pause ? 0 : 0.05;
 
     if (this.ballAngle >= 360) {
       this.ballAngle = 0;
@@ -226,6 +264,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
       this.index = this.index + 1;
     }
     const frame = this.frames[this.index];
+
+    this.updatePreviousPositions(frame.cars);
+
     this.drawCars(frame.cars);
     this.drawBall(frame.ball);
     if (this.index % 20 === 0) {

@@ -8,11 +8,21 @@
       <div class="row">
         <div class="btn-group" role="group" aria-label="Basic example">
           <button (click)="decreaseSpeed()" style="width: 74px;" type="button" class="btn btn-primary">Slower</button>
-          <button type="button" style="width: 61px;" class="btn btn-primary" disabled>X {{speedRatio}}</button>
+          <button type="button" style="width: 61px;" class="btn btn-secondary" disabled>X {{speedRatio}}</button>
           <button (click)="increaseSpeed()" style="width: 74px;" type="button" class="btn btn-primary">Faster</button>
         </div>
-        <button (click)="pause = !pause" style="margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">{{pause ? 'Resume' : 'Pause'}}</button>
-        <button (click)="showBoosts = !showBoosts" style="margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">{{showBoosts ? 'Ground' : 'Boosts'}}</button>
+        <button
+          (click)="pause = !pause"
+          [class.disabled]="!pause"
+          style="cursor: pointer; margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">Pause</button>
+        <button
+          (click)="showBoosts = !showBoosts"
+          [class.disabled]="!showBoosts"
+          style="cursor: pointer; margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">Boosts</button>
+        <button
+          (click)="path = !path"
+          [class.disabled]="!path"
+          style="cursor: pointer; margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">Paths</button>
       </div>
     </div>
     <div class="col-sm">
