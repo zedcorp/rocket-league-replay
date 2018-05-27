@@ -35,7 +35,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   zRange;
   fps = 600;
   index = 0;
-  ballRadius = 10;
+  ballRadius = 15;
   reds = [];
   blues = [];
   carTeams = {};
