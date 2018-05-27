@@ -20,6 +20,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
   ctx: CanvasRenderingContext2D;
   // imgGround = new HTMLImageElement();
   imgGround = new Image();
+  imgBall = new Image();
+  imgCar = new Image();
   fieldWidth = 400;
   fieldHeight = 600;
   carLength = 20;
@@ -31,11 +33,15 @@ export class FieldComponent implements OnInit, AfterViewInit {
   zRange;
   fps = 600;
   index = 0;
-  ballRadius = 5;
+  ballRadius = 10;
   reds = [];
   blues = [];
   carTeams = {};
+  carColors = {};
   availableSpeedRatios = [0.2, 0.5, 1, 2, 3];
+  ballAngle = 0;
+  blueColors = ['#0066ff', '#00cc66', '#ccf5ff'];
+  redColors = ['#ffff00', '#ff9900', '#ff0000'];
 
   @ViewChild('canvas') canvas;
 
@@ -48,6 +54,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.imgGround.src = '/assets/Ground.png';
+    this.imgBall.src = '/assets/Ball.png';
+    this.imgCar.src = '/assets/Octane.png';
     this.replayService.getReplay(this.matchId)
       .subscribe(frames => {
         // this.frames = frames.slice(0, 1);
@@ -68,8 +76,18 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   initTeams(frame: Frame) {
     Object.entries(frame.cars).forEach(([id, car]) => {
-      this.carTeams[id] = (car.loc.y > 0) ? Team.RED : Team.BLUE;
+      const team = (car.loc.y > 0) ? Team.RED : Team.BLUE;
+      this.carTeams[id] = team;
+      this.carColors[id] = (car.loc.y > 0) ? Team.RED : Team.BLUE;
+      if (team === Team.RED) {
+        this.carColors[id] = this.redColors[0];
+        this.redColors.splice(0, 1);
+      } else {
+        this.carColors[id] = this.blueColors[0];
+        this.blueColors.splice(0, 1);
+      }
     });
+    console.log(this.carColors);
   }
 
   // Controls
@@ -88,6 +106,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     this.speedRatio = this.availableSpeedRatios[i - 1];
   }
+
+  // Data
 
   getData(frames: Frame[]) {
     const xs = [];
@@ -132,9 +152,12 @@ export class FieldComponent implements OnInit, AfterViewInit {
     return car2.scoreboard.score - car1.scoreboard.score;
   }
 
+  // Draw
+
   clear() {
     this.ctx.clearRect(0, 0, this.fieldWidth, this.fieldHeight);
-    // this.ctx.drawImage(this.imgGround, -30, -30, this.canvas.width + 60, this.canvas.height + 60);
+    this.ctx.drawImage(this.imgGround, -30, -30, this.fieldWidth + 60, this.fieldHeight + 60);
+    // this.ctx.drawImage(this.imgGround, 0, 0, this.fieldWidth + 60, this.fieldHeight + 60);
   }
 
   getScaledPos(loc: Coordinates) {
@@ -145,7 +168,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     };
   }
 
-  drawCar(car: Car) {
+  drawCar(id: string, car: Car) {
     this.ctx.save();
 
     const scaledPos = this.getScaledPos(car.loc);
@@ -157,30 +180,34 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.ctx.rotate(angle);
     this.ctx.scale(scaledPos.z, scaledPos.z);
 
-    this.ctx.fillStyle = 'red';
+    this.ctx.fillStyle = this.carColors[id];
     this.ctx.fillRect(-this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
-    // this.ctx.drawImage(imgCar, -this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
+    this.ctx.drawImage(this.imgCar, -this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
 
     this.ctx.restore();
   }
 
   drawCars(cars: Car[]) {
     Object.entries(cars).forEach(([id, car]) => {
-      this.drawCar(car);
+      this.drawCar(id, car);
     });
   }
 
   drawBall(ball: Ball) {
     this.ctx.save();
-    this.ctx.fillStyle = 'lightgray';
-    this.ctx.beginPath();
     const scaledPos = this.getScaledPos(ball.loc);
     const x = scaledPos.x;
     const y = scaledPos.y;
     const radius = this.ballRadius * scaledPos.z;
+    this.ctx.translate(x, y);
+    this.ctx.rotate(this.ballAngle);
+    this.ctx.drawImage(this.imgBall, -radius / 2, -radius / 2, radius, radius);
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    this.ctx.closePath();
-    this.ctx.fill();
+    this.ballAngle += 0.05;
+
+    if (this.ballAngle >= 360) {
+      this.ballAngle = 0;
+    }
     this.ctx.restore();
   }
 

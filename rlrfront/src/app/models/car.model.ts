@@ -11,4 +11,5 @@ export class Car {
   loc: Coordinates;
   rot: Coordinates;
   scoreboard: CarScoreBoard;
+  color: string;
 }
