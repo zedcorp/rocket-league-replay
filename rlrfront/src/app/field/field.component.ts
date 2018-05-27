@@ -24,8 +24,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
   showBoosts = true;
   imgBall = new Image();
   imgCar = new Image();
-  fieldWidth = 400;
-  fieldHeight = 600;
+  fieldWidth = 200;
+  fieldHeight = 300;
   carLength = 20;
   carWidth = 10;
   speedRatio = 1;
@@ -48,6 +48,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
   storedPositionsCount = 20;
   path = false;
   positionRadius = 2;
+  progressWidth = 0;
+  totalFrames;
 
   @ViewChild('canvas') canvas;
 
@@ -106,6 +108,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     this.speedRatio = this.availableSpeedRatios[i + 1];
   }
+
   decreaseSpeed() {
     const i = this.availableSpeedRatios.indexOf(this.speedRatio);
     if (i === 0) {
@@ -114,9 +117,18 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.speedRatio = this.availableSpeedRatios[i - 1];
   }
 
+  setProgress(event) {
+    console.log(event);
+    console.log(event.offsetX);
+    const totalWidth = document.getElementById('total-prog').offsetWidth;
+    this.index = Math.floor( event.offsetX * this.totalFrames / totalWidth);
+  }
+
   // Data
 
   getData(frames: Frame[]) {
+    this.totalFrames = frames.length;
+
     const xs = [];
     const ys = [];
     const zs = [];
@@ -170,6 +182,15 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.previousPositions[carId].push(car.loc);
       }
     });
+  }
+
+  updateProgress() {
+    const prog = document.getElementById('prog');
+    // this.progress = (this.index / this.totalFrames) * 100;
+    const width = prog.parentElement.offsetWidth;
+    // console.log('width', width);
+    this.progressWidth = Math.floor((this.index / this.totalFrames) * width);
+    // prog.style.width = String(Math.floor((this.index / this.totalFrames) * width));
   }
 
   // Draw
@@ -266,6 +287,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     const frame = this.frames[this.index];
 
     this.updatePreviousPositions(frame.cars);
+    this.updateProgress();
 
     this.drawCars(frame.cars);
     this.drawBall(frame.ball);

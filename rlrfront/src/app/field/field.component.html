@@ -3,9 +3,20 @@
 
   <div class="row">
     <div class="col-sm">
-
-      <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}"></canvas>
       <div class="row">
+        <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}"></canvas>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="row" style="margin-top: 10px;">
+        <div id="total-prog" style="cursor:pointer; width:100%; background-color:grey;" (click)="setProgress($event)">
+          <div id="prog" [ngStyle]="{'width':progressWidth + 'px'}" style="height:20px; background-color:blue;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu replay -->
+      <div class="row" style="margin-top: 10px;">
         <div class="btn-group" role="group" aria-label="Basic example">
           <button (click)="decreaseSpeed()" style="width: 74px;" type="button" class="btn btn-primary">Slower</button>
           <button type="button" style="width: 61px;" class="btn btn-secondary" disabled>X {{speedRatio}}</button>
