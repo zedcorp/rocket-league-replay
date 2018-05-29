@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 echo ">> Update app"
-ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay && rm rlrfront/package-lock.json && git pull"
+ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay && git pull"
 
 echo ">> Update db"
 ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay/rocketleaguereplay && python3 manage.py makemigrations && python3 manage.py migrate"
