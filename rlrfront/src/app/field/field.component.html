@@ -1,17 +1,17 @@
-<div class="container">
-
-
+<div class="container-fluid">
   <div class="row">
-    <div class="col-sm">
+    <div class="col-md-6">
       <!-- Score -->
-      <div class="row">
-        <span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-primary">{{blueScore}}</span>
-        <span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-danger">{{redScore}}</span>
+      <div class="row" style="text-align: center;">
+        <!--<span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-primary">{{blueScore}}</span>-->
+        <!--<span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-danger">{{redScore}}</span>-->
+        <span [ngStyle]="{'width': '50%'}" class="badge badge-primary">{{blueScore}}</span>
+        <span [ngStyle]="{'width': '50%'}" class="badge badge-danger">{{redScore}}</span>
       </div>
 
       <!-- Field -->
       <div class="row">
-        <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}"></canvas>
+        <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}" style="margin-right: auto; margin-left: auto;"></canvas>
       </div>
 
       <!-- Time -->
@@ -73,7 +73,7 @@
           style="cursor: pointer; margin-left: 5px; width: 74px;" type="button" class="btn btn-primary">Paths</button>
       </div>
     </div>
-    <div class="col-sm">
+    <div class="col-md-6">
       <!-- Scoreboard -->
       <table class="table table-bordered">
         <thead>

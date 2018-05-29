@@ -3,6 +3,8 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+
 import {AppComponent} from './app.component';
 import {PlayersComponent} from './players/players.component';
 import {PlayerDetailComponent} from './player-detail/player-detail.component';
@@ -14,6 +16,7 @@ import {MenuComponent} from './menu/menu.component';
 import {FpspickerComponent} from './fpspicker/fpspicker.component';
 import {FieldComponent} from './field/field.component';
 import { ReplaysComponent } from './replays/replays.component';
+import { FieldModalComponent } from './field-modal/field-modal.component';
 
 @NgModule({
   declarations: [
@@ -26,16 +29,21 @@ import { ReplaysComponent } from './replays/replays.component';
     MenuComponent,
     FpspickerComponent,
     FieldComponent,
-    ReplaysComponent
+    ReplaysComponent,
+    FieldModalComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent],
+  entryComponents: [
+    FieldModalComponent
+  ]
 })
 export class AppModule {
 }

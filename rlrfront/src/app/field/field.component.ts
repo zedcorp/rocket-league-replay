@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ReplayService} from '../replay.service';
 
 import {Frame} from '../models/frame.model';
@@ -15,7 +15,7 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class FieldComponent implements OnInit, AfterViewInit {
 
-  matchId;
+  @Input() matchId;
   frames: Frame[];
   ctx: CanvasRenderingContext2D;
   pause = false;
@@ -65,9 +65,11 @@ export class FieldComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute
   ) {
     this.route.params.subscribe(params => this.matchId = params.id);
+    // console.log('matchId', this.matchId);
   }
 
   ngOnInit() {
+    console.log('matchId', this.matchId);
     this.imgGround.src = '/assets/Ground.png';
     this.imgGroundBoosts.src = '/assets/groundboosts.png';
     this.imgBall.src = '/assets/Ball.png';

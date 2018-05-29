@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+
 import {ReplayService} from '../replay.service';
 import {Replay} from '../models/replay';
 import {ActivatedRoute} from '@angular/router';
+import {FieldModalComponent} from '../field-modal/field-modal.component';
 
 @Component({
   selector: 'app-replays',
@@ -15,7 +19,8 @@ export class ReplaysComponent implements OnInit {
 
   constructor(
     private replayService: ReplayService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private modalService: NgbModal
   ) {
     this.route.params.subscribe(params => this.playerId = params.id);
   }
@@ -29,4 +34,8 @@ export class ReplaysComponent implements OnInit {
       });
   }
 
+  open(matchId: string) {
+    const modalRef = this.modalService.open(FieldModalComponent, { size: 'lg'});
+    modalRef.componentInstance.matchId = matchId;
+  }
 }

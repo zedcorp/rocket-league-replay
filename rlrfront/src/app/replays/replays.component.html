@@ -2,7 +2,8 @@
   <tbody>
   <tr
     *ngFor="let replay of replays"
-    routerLink="/replays/{{replay.rlmatchid}}"
+
+    (click)="open(replay.rlmatchid)"
     style="cursor: pointer;"
     [class.alert-danger]="!replay.win"
     [class.alert-success]="replay.win">
@@ -14,3 +15,5 @@
   </tr>
   </tbody>
 </table>
+
+<!--routerLink="/replays/{{replay.rlmatchid}}"-->
