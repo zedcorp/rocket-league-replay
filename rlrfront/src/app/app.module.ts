@@ -16,7 +16,7 @@ import {MenuComponent} from './menu/menu.component';
 import {FpspickerComponent} from './fpspicker/fpspicker.component';
 import {FieldComponent} from './field/field.component';
 import { ReplaysComponent } from './replays/replays.component';
-import { FieldModalComponent } from './field-modal/field-modal.component';
+import { FieldModalComponent } from './fieldmodal/field-modal.component';
 
 @NgModule({
   declarations: [

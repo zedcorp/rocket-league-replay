@@ -5,7 +5,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ReplayService} from '../replay.service';
 import {Replay} from '../models/replay';
 import {ActivatedRoute} from '@angular/router';
-import {FieldModalComponent} from '../field-modal/field-modal.component';
+import {FieldModalComponent} from '../fieldmodal/field-modal.component';
 
 @Component({
   selector: 'app-replays',
