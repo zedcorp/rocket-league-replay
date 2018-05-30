@@ -3,15 +3,19 @@
     <div class="col-md-6">
       <!-- Score -->
       <div class="row" style="text-align: center;">
-        <!--<span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-primary">{{blueScore}}</span>-->
-        <!--<span [ngStyle]="{'width': fieldWidth / 2 + 'px'}" class="badge badge-danger">{{redScore}}</span>-->
         <span [ngStyle]="{'width': '50%'}" class="badge badge-primary">{{blueScore}}</span>
         <span [ngStyle]="{'width': '50%'}" class="badge badge-danger">{{redScore}}</span>
       </div>
 
       <!-- Field -->
       <div class="row">
-        <canvas #canvas width="{{fieldWidth}}" height="{{fieldHeight}}" style="margin-right: auto; margin-left: auto;"></canvas>
+        <canvas #canvas [hidden]="showHeatmap" width="{{fieldWidth}}" height="{{fieldHeight}}" style="margin-right: auto; margin-left: auto;"></canvas>
+        <div style="margin-right: auto; margin-left: auto;">
+          <app-heatmap
+            *ngIf="showHeatmap"
+            [carLocations]="heatmapCarLocations"
+          ></app-heatmap>
+        </div>
       </div>
 
       <!-- Time -->
@@ -39,16 +43,6 @@
             'position': 'absolute',
             'float': 'left'
             }"></i>
-          <!--<span-->
-            <!--*ngFor="let goal of goals"-->
-            <!--class="{{goal.color}}"-->
-            <!--[ngStyle]="{-->
-            <!--'margin-left': goal.offset + 'px',-->
-            <!--'font-weight': 'bold',-->
-            <!--'position': 'absolute',-->
-            <!--'float': 'left'-->
-            <!--}"-->
-          <!--&gt;G</span>-->
         </div>
       </div>
 
@@ -85,6 +79,7 @@
           <th scope="col">Assists</th>
           <th scope="col">Saves</th>
           <th scope="col">Shots</th>
+          <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -96,6 +91,14 @@
           <td>{{car.scoreboard.assists}}</td>
           <td>{{car.scoreboard.saves}}</td>
           <td>{{car.scoreboard.shots}}</td>
+          <td>
+            <button
+              (click)="(showHeatmap && selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
+              [class.disabled]="selectedCarIdHeatmap !== car.id"
+              style="cursor: pointer;" type="button" class="btn btn-primary">
+              <i class="fas fa-map" style="font-size: 20px;"></i>
+            </button>
+          </td>
         </tr>
         <tr *ngFor="let car of blues" class="blue-player">
           <td [ngStyle]="{'background-color': carColors[car.id], 'width': '20px'}"></td>
@@ -105,9 +108,18 @@
           <td>{{car.scoreboard.assists}}</td>
           <td>{{car.scoreboard.saves}}</td>
           <td>{{car.scoreboard.shots}}</td>
+          <td (click)="showHeatMap(car.id)">
+            <button
+              (click)="(showHeatmap && selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
+              [class.disabled]="selectedCarIdHeatmap !== car.id"
+              style="cursor: pointer;" type="button" class="btn btn-primary">
+              <i class="fas fa-map" style="font-size: 20px;"></i>
+            </button>
+          </td>
         </tr>
         </tbody>
       </table>
+      <button (click)="showHeatMap('5')">Heatmap</button>
     </div>
   </div>
 </div>

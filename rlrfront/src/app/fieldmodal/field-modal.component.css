@@ -1,10 +1,10 @@
 @media (min-width: 992px) {
   .modal-lg {
-    max-width: 800px;
+    max-width: 90%;
   }
 }
 @media (min-width: 992px) {
   .modal-lg {
-    max-width: 1000px;
+    max-width: 90%;
   }
 }

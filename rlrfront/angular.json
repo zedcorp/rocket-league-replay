@@ -26,6 +26,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.css"
             ],
             "scripts": [
+              "node_modules/heatmap.js/heatmap.min.js"
             ]
           },
           "configurations": {

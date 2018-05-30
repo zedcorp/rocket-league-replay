@@ -17,6 +17,7 @@ import {FpspickerComponent} from './fpspicker/fpspicker.component';
 import {FieldComponent} from './field/field.component';
 import { ReplaysComponent } from './replays/replays.component';
 import { FieldModalComponent } from './fieldmodal/field-modal.component';
+import { HeatmapComponent } from './heatmap/heatmap.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { FieldModalComponent } from './fieldmodal/field-modal.component';
     FpspickerComponent,
     FieldComponent,
     ReplaysComponent,
-    FieldModalComponent
+    FieldModalComponent,
+    HeatmapComponent
   ],
   imports: [
     BrowserModule,

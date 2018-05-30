@@ -58,6 +58,11 @@ export class FieldComponent implements OnInit, AfterViewInit {
   timeDisplay: string;
   totalSeconds: number;
 
+  // Heatmaps
+  showHeatmap = false;
+  selectedCarIdHeatmap;
+  heatmapCarLocations: Coordinates[];
+
   @ViewChild('canvas') canvas;
 
   constructor(
@@ -94,6 +99,28 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.ctx = can.getContext('2d');
 
     this.clear();
+  }
+
+  showHeatMap(carId: string) {
+    console.log('showHeatMap', carId);
+    this.hideHeatMap();
+    this.pause = true;
+    this.selectedCarIdHeatmap = carId;
+    this.frames.forEach((frame) => {
+      Object.entries(frame.cars).forEach(([id, car]) => {
+        if (id === carId) {
+          this.heatmapCarLocations.push(this.getScaledPos(car.loc));
+        }
+      });
+    });
+    this.showHeatmap = true;
+  }
+
+  hideHeatMap() {
+    this.selectedCarIdHeatmap = null;
+    this.heatmapCarLocations = [];
+    this.showHeatmap = false;
+    this.pause = false;
   }
 
   initTeams(frame: Frame) {
@@ -258,7 +285,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
       x: Math.trunc((loc.x * this.fieldWidth / this.xRange) + (this.fieldWidth / 2)),
       y: Math.trunc((loc.y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
       z: 1 + (loc.z * this.zRatio / this.zRange)
-    };
+    } as Coordinates;
   }
 
   drawCar(id: string, car: Car) {
