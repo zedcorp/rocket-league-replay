@@ -183,8 +183,8 @@ def upload_replay_no_redirect(request):
                 print ("cmd /C C:/Users/Zoulou/Downloads/RocketLeagueReplayParser.Console.1.11.0/dist/RocketLeagueReplayParser.exe " + fs.base_location + '/'+file.name+' --fileoutput')
                 p1 = subprocess.Popen(["cmd", "/C", "C:/Users/Zoulou/Downloads/RocketLeagueReplayParser.Console.1.11.0/dist/RocketLeagueReplayParser.exe " + fs.base_location + '/'+file.name+' --fileoutput'],stdout=subprocess.PIPE)
             else:
-                print ("dotnet /home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll " + fs.base_location + '/'+file.name+' --fileoutput')
-                p1 = subprocess.Popen(["dotnet", "/home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll " + fs.base_location + '/'+file.name+' --fileoutput'],stdout=subprocess.PIPE)
+                print ("sudo dotnet /home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll /home/ubuntu/rocket-league-replay/rocketleaguereplay/replays/"+file.name+" --fileoutput")
+                p1 = subprocess.Popen(["sudo dotnet /home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll /home/ubuntu/rocket-league-replay/rocketleaguereplay/replays/"+file.name+" --fileoutput"],stdout=subprocess.PIPE,shell=True)
             out = p1.communicate()
             #call_command(' ', fs.base_location+'/current_replay.replay', stdout=out)
             try:
