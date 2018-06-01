@@ -178,7 +178,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
 
-      
+
         if (!car.position || !car.position.X) {
           return;
         }
@@ -233,8 +233,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.blues.push(car);
       }
     });
-    this.reds.sort(this.compareScore);
-    this.blues.sort(this.compareScore);
+    this.reds.sort((c1, c2) => c2.name.localeCompare(c1.name));
+    this.blues.sort((c1, c2) => c2.name.localeCompare(c1.name));
   }
 
   compareScore(car1: Car, car2: Car) {
@@ -270,11 +270,21 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   updateTime(frame: Frame) {
-    // console.log(this.totalSeconds);
     const frameSeconds = Math.trunc(frame.time);
     const frameMinutes = Math.trunc(frameSeconds / 60);
     const totalMinutes = Math.trunc(this.totalSeconds / 60);
-    this.timeDisplay = frameMinutes + ':' + frameSeconds % 60 + ' / ' + totalMinutes + ':' + this.totalSeconds % 60;
+    this.timeDisplay =
+      this.addLeading0(frameMinutes)
+      + ':'
+      + this.addLeading0(frameSeconds % 60)
+      + ' / '
+      + this.addLeading0(totalMinutes)
+      + ':'
+      + this.addLeading0(this.totalSeconds % 60);
+  }
+
+  addLeading0(value) {
+    return (value.length === 1) ? '0' : '' + value;
   }
 
   // Draw
@@ -297,13 +307,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawCar(id: string, car: Car) {
-    
+
     if(!car.position) {
       return;
     }
-    
+
     this.ctx.save();
-    
+
     const scaledPos = this.getScaledPos(car.position);
     const x = scaledPos.X;
     const y = scaledPos.Y;
@@ -326,7 +336,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawPath(carId) {
     for (const position of this.previousPositions[carId]) {
-      
+
       if (!position) {
         return;
       }
@@ -372,7 +382,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawFrames = () => {
-  
+
     if (this.index === this.frames.length - 1) {
       return;
     }
@@ -382,7 +392,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     const frame = this.frames[this.index];
 
-   
+
     if (this.index % 5 === 0) {
       this.updateTime(frame);
     }
