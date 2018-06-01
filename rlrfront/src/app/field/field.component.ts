@@ -108,8 +108,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.selectedCarIdHeatmap = carId;
     this.frames.forEach((frame) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
-        if (id === carId) {
-          this.heatmapCarLocations.push(this.getScaledPos(car.loc));
+        if (id === carId && car.position) {
+          this.heatmapCarLocations.push(this.getScaledPos(car.position));
         }
       });
     });
@@ -125,9 +125,12 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   initTeams(frame: Frame) {
     Object.entries(frame.cars).forEach(([id, car]) => {
-      const team = (car.loc.y > 0) ? Team.RED : Team.BLUE;
+      if(!car.position) {
+        return;
+      }
+      const team = (car.position.Y > 0) ? Team.RED : Team.BLUE;
       this.carTeams[id] = team;
-      this.carColors[id] = (car.loc.y > 0) ? Team.RED : Team.BLUE;
+      this.carColors[id] = (car.position.Y > 0) ? Team.RED : Team.BLUE;
       if (team === Team.RED) {
         this.carColors[id] = this.redColors[0];
         this.redColors.splice(0, 1);
@@ -174,19 +177,24 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
-        if (car.loc.x !== null) {
-          xs.push(car.loc.x);
+
+      
+        if (!car.position || !car.position.X) {
+          return;
         }
-        if (car.loc.y !== null) {
-          ys.push(car.loc.y);
+        if (car.position.X !== null) {
+          xs.push(car.position.X);
         }
-        if (car.loc.z !== null) {
-          zs.push(car.loc.z);
+        if (car.position.Y !== null) {
+          ys.push(car.position.Y);
+        }
+        if (car.position.Z !== null) {
+          zs.push(car.position.Z);
         }
       });
 
-      if (frame.scoreboard.team1 > this.previousRedScore) {
-        this.previousRedScore = frame.scoreboard.team1;
+      if (frame.teams['red'].score > this.previousRedScore) {
+        this.previousRedScore = frame.teams['red'].score;
         this.goals.push({
           team: Team.RED,
           color: 'red',
@@ -194,8 +202,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
           offset: this.getGoalMargin(frameIndex)
         });
       }
-      if (frame.scoreboard.team0 > this.previousBlueScore) {
-        this.previousBlueScore = frame.scoreboard.team0;
+      if (frame.teams['blue'].score > this.previousBlueScore) {
+        this.previousBlueScore = frame.teams['blue'].score;
         this.goals.push({
           team: Team.BLUE,
           color: 'blue',
@@ -244,7 +252,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
         if (this.previousPositions[carId].length > this.storedPositionsCount) {
           this.previousPositions[carId].shift();
         }
-        this.previousPositions[carId].push(car.loc);
+        this.previousPositions[carId].push(car.position);
       }
     });
   }
@@ -280,25 +288,30 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getScaledPos(loc: Coordinates) {
+  getScaledPos(position: Coordinates) {
     return {
-      x: Math.trunc((loc.x * this.fieldWidth / this.xRange) + (this.fieldWidth / 2)),
-      y: Math.trunc((loc.y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
-      z: 1 + (loc.z * this.zRatio / this.zRange)
+      X: Math.trunc((position.X * this.fieldWidth / this.xRange) + (this.fieldWidth / 2)),
+      Y: Math.trunc((position.Y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
+      Z: 1 + (position.Z * this.zRatio / this.zRange)
     } as Coordinates;
   }
 
   drawCar(id: string, car: Car) {
+    
+    if(!car.position) {
+      return;
+    }
+    
     this.ctx.save();
-
-    const scaledPos = this.getScaledPos(car.loc);
-    const x = scaledPos.x;
-    const y = scaledPos.y;
-    const angle = Math.atan2(car.lin_vel.y, car.lin_vel.x) + (Math.PI / 2);
+    
+    const scaledPos = this.getScaledPos(car.position);
+    const x = scaledPos.X;
+    const y = scaledPos.Y;
+    const angle = Math.atan2(car.linear_velocity.Y, car.linear_velocity.X) + (Math.PI / 2);
 
     this.ctx.translate(x, y);
     this.ctx.rotate(angle);
-    this.ctx.scale(scaledPos.z, scaledPos.z);
+    this.ctx.scale(scaledPos.Z, scaledPos.Z);
 
     this.ctx.fillStyle = this.carColors[id];
     this.ctx.fillRect(-this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
@@ -313,11 +326,15 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawPath(carId) {
     for (const position of this.previousPositions[carId]) {
+      
+      if (!position) {
+        return;
+      }
       this.ctx.save();
       const scaledPos = this.getScaledPos(position);
-      const x = scaledPos.x;
-      const y = scaledPos.y;
-      const radius = this.positionRadius * scaledPos.z;
+      const x = scaledPos.X;
+      const y = scaledPos.Y;
+      const radius = this.positionRadius * scaledPos.Z;
       this.ctx.translate(x, y);
       this.ctx.fillStyle = this.carColors[carId];
       this.ctx.beginPath();
@@ -330,16 +347,18 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawCars(cars: Car[]) {
     Object.entries(cars).forEach(([id, car]) => {
-      this.drawCar(id, car);
+      if(car.position && car.linear_velocity) {
+        this.drawCar(id, car);
+      }
     });
   }
 
   drawBall(ball: Ball) {
     this.ctx.save();
-    const scaledPos = this.getScaledPos(ball.loc);
-    const x = scaledPos.x;
-    const y = scaledPos.y;
-    const radius = this.ballRadius * scaledPos.z;
+    const scaledPos = this.getScaledPos(ball.position);
+    const x = scaledPos.X;
+    const y = scaledPos.Y;
+    const radius = this.ballRadius * scaledPos.Z;
     this.ctx.translate(x, y);
     this.ctx.rotate(this.ballAngle);
     this.ctx.drawImage(this.imgBall, -radius / 2, -radius / 2, radius, radius);
@@ -353,6 +372,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawFrames = () => {
+  
     if (this.index === this.frames.length - 1) {
       return;
     }
@@ -362,12 +382,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     const frame = this.frames[this.index];
 
+   
     if (this.index % 5 === 0) {
       this.updateTime(frame);
     }
 
-    this.blueScore = frame.scoreboard.team0;
-    this.redScore = frame.scoreboard.team1;
+    this.blueScore = frame.teams['blue'].score;
+    this.redScore = frame.teams['red'].score;
 
     this.setCarIds(frame.cars);
 

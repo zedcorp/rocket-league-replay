@@ -4,6 +4,7 @@ import os
 import zipfile
 import traceback
 import io
+import subprocess
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -12,6 +13,8 @@ from player.models import RlMatch, RlPlayer, RlUser
 from player.parser.data.data_loader import load_data
 from player.parser.data.object_numbers import get_player_info
 from player.parser.parser.frames import get_frames, get_stats
+from player.parser.frames_builder import create_match
+from player.parser.replay_data import Match
 
 settings = PlayerConf()
 
@@ -158,85 +161,88 @@ def upload_no_redirect(request):
             return
 
         try:
-            load_data(os.path.join(fs.base_location, json_name))
+            match_data = create_match(os.path.join(fs.base_location, json_name))
+            handle_match(match_data)
         except Exception as e:
             print("OS error: {0}".format(e))
             traceback.print_exc()
+            return HttpResponse(status=500)
 
-        handle_json(fs, rl_match_id)
+        
+        return HttpResponse(status=200)
 
-        return HttpResponse('')
+def upload_replay_no_redirect(request):
+    fs = FileSystemStorage()
+    
+    if request.method == 'POST' and request.FILES['upfile']:
+        for file in request.FILES.getlist('upfile'):
 
+            filename = fs.save(file.name, file)
+        
+            if os.name == 'nt':
+                print ("cmd /C C:/Users/Zoulou/Downloads/RocketLeagueReplayParser.Console.1.11.0/dist/RocketLeagueReplayParser.exe " + fs.base_location + '/'+file.name+' --fileoutput')
+                p1 = subprocess.Popen(["cmd", "/C", "C:/Users/Zoulou/Downloads/RocketLeagueReplayParser.Console.1.11.0/dist/RocketLeagueReplayParser.exe " + fs.base_location + '/'+file.name+' --fileoutput'],stdout=subprocess.PIPE)
+            else:
+                print ("dotnet /home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll " + fs.base_location + '/'+file.name+' --fileoutput')
+                p1 = subprocess.Popen(["dotnet", "/home/ubuntu/dotnettest/RocketLeagueReplayParser.Console.Core.dll " + fs.base_location + '/'+file.name+' --fileoutput'],stdout=subprocess.PIPE)
+            out = p1.communicate()
+            #call_command(' ', fs.base_location+'/current_replay.replay', stdout=out)
+            try:
+                match_data = create_match(file.name.replace('.replay', '.json'))
+                os.remove(file.name.replace('.replay', '.json'))
+                handle_match(match_data)
+            except Exception as e:
+                print("OS error: {0}".format(e))
+                traceback.print_exc()
 
-def handle_json(fs, rl_match_id):
-    ################# dirty part should change the load_data instead #################
-    frames = get_frames()
-    player_info = get_player_info()
-    step = 1
-    myframes = [len(frames) / step]
-    myframes[0] = {
-        'time': 0,
-        'scoreboard': {
-            'team0': 0,
-            'team1': 0
-        },
-        'ball': {'loc': {'x': 0, 'y': 0, 'z': 0},
-                 'rot': {'x': 0, 'y': 0, 'z': 0},
-                 'sleep': True,
-                 'last_hit': None},
-        'cars': {}
-    }
-    ####################################################################################
-    stats = get_stats()
+            return HttpResponse('')
+
+def handle_match(match_data):
+    
     match = RlMatch.objects.get_or_create(
-        scoreblue=stats['blueteamscore'],
-        scorered=stats['redteamscore'],
-        starttime=stats['starttime'],
-        duration=stats['duration'],
-        rlmatchid=stats['matchid'])
-    for player in stats['playerstats'][0]:
-        user = RlUser.objects.get_or_create(onlineid=str(player['OnlineID']), name=player['Name'])
+        scoreblue=match_data.team_blue_score,
+        scorered=match_data.team_red_score,
+        starttime=match_data.date_time.strftime("%Y-%m-%d %H:%M:%S"),
+        duration=match_data.duration,
+        rlmatchid=match_data.id,
+        replayjson=''
+        )
+    
+    
+    for player in match_data.players:
+        
+        player_data = match_data.players[player]
+        
+        user = RlUser.objects.get_or_create(onlineid=str(player_data.online_id), name=player)
 
-        if player['Team'] == 0 and match[0].scoreblue > match[0].scorered:
+        if player_data.team == 0 and match_data.team_blue_score > match_data.team_red_score:
             user[0].nbwin = user[0].nbwin + 1
-        elif player['Team'] == 1 and match[0].scoreblue < match[0].scorered:
+        elif player_data.team == 1 and match_data.team_blue_score < match_data.team_red_score:
             user[0].nbwin = user[0].nbwin + 1
+        else:
+            user[0].nblose = user[0].nblose + 1
 
         user[0].nbmatchs = user[0].nbmatchs + 1
 
         user[0].nblose = user[0].nblose
         user[0].pwin = user[0].nbwin * 100 / user[0].nbmatchs
-        user[0].nbgoal = user[0].nbgoal + player['Goals']
-        user[0].nbassist = user[0].nbassist + player['Assists']
-        user[0].nbsave = user[0].nbsave + player['Saves']
-        user[0].score = user[0].score + player['Score']
+        user[0].nbgoal = user[0].nbgoal + player_data.goals
+        user[0].nbassist = user[0].nbassist + player_data.assists
+        user[0].nbsave = user[0].nbsave + player_data.saves
+        user[0].score = user[0].score + player_data.score
 
         RlPlayer.objects.get_or_create(userid=user[0],
                                        idmatch=match[0],
-                                       name=player['Name'],
-                                       score=player['Score'],
-                                       assist=player['Assists'],
-                                       goal=player['Goals'],
-                                       saves=player['Saves'],
-                                       platform=player['Platform']['Value'],
-                                       team=player['Team'],
-                                       shot=player['Shots'])
+                                       name=player_data.name,
+                                       score=player_data.score,
+                                       assist=player_data.assists,
+                                       goal=player_data.goals,
+                                       saves=player_data.saves,
+                                       platform='',
+                                       team=player_data.team,
+                                       shot=player_data.shots)
 
         user[0].save()
-    for i in range(0, len(frames), step):
-        if (i > 0):
-            myframes.append(copy.deepcopy(myframes[int(i / step - 1)]))
 
-        myframes[int(i / step - 1)]['time'] = frames[i]['time']['real_replay_time']
-        myframes[int(i / step - 1)]['scoreboard'] = frames[i]['scoreboard']
-        myframes[int(i / step - 1)]['cars'] = frames[i]['cars']
-        myframes[int(i / step - 1)]['ball'] = frames[i]['ball']
-
-        for car in myframes[int(i / step - 1)]['cars']:
-            myframes[int(i / step - 1)]['cars'][car]['name'] = player_info[car]['name']
-    print("FINAL: " + os.path.join(fs.base_location, rl_match_id) + '.final.json')
-    filefinal = open(os.path.join(fs.base_location, rl_match_id) + '.final.json', 'w')
-    encoded_str = json.dumps(myframes)
-    filefinal.write(encoded_str)
-    match[0].replayjson = encoded_str
+    match[0].replayjson = json.dumps(match_data.json)
     match[0].save()

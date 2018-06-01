@@ -8,6 +8,7 @@ urlpatterns = [
     path('upload', views.upload, name='upload'),
     path('exists/<str:replay_id>', csrf_exempt(views.exists), name='exists'),
     path('upload_no_redirect', csrf_exempt(views.upload_no_redirect), name='upload_no_redirect'),
+    path('upload_replay_no_redirect', csrf_exempt(views.upload_replay_no_redirect), name='upload_replay_no_redirect'),
     path('users.json', views.users, name='users'),
     path('matchs.json', views.matchs, name='matchs'),
     path('replay/<str:file>', views.replay, name='replay'),

@@ -26,7 +26,7 @@ export class HeatmapComponent implements OnInit {
       container: document.getElementById('container')
     });
 
-    const data = this._carLocations.map(loc => ({x: loc.x, y: loc.y, value: 1}));
+    const data = this._carLocations.map(position => ({x: position.X, y: position.Y, value: 1}));
 
     heatmap.setData({
       max: 100,

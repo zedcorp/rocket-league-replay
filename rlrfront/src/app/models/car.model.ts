@@ -7,9 +7,9 @@ export class Car {
   name: string;
   team: Team;
   ping: number;
-  ang_vel: Coordinates;
-  lin_vel: Coordinates;
-  loc: Coordinates;
+  angular_velocity: Coordinates;
+  linear_velocity: Coordinates;
+  position: Coordinates;
   rot: Coordinates;
   scoreboard: CarScoreBoard;
   color: string;

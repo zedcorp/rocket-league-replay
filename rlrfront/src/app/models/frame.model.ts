@@ -5,6 +5,7 @@ import {ScoreBoard} from './scoreboard.model';
 export class Frame {
   time: number;
   ball: Ball;
+  teams : number[]
   cars: Car[];
   scoreboard: ScoreBoard;
   color: string;

@@ -12,7 +12,7 @@ class RlMatch(models.Model):
     rlmatchid = models.TextField(blank=False, unique=True)
     scoreblue = models.IntegerField(blank=False, null=False)
     scorered = models.IntegerField(blank=False, null=False)
-    duration = models.IntegerField(blank=False, null=False)
+    duration = models.FloatField(blank=False, null=False)
     starttime = models.DateTimeField(blank=False, null=False)
     frames = models.TextField(blank=True, unique=False)
     replayjson =  models.TextField(blank=True, null=True)
