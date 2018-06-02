@@ -40,7 +40,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   blues = [];
   carTeams = {};
   carColors = {};
-  availableSpeedRatios = [0.2, 0.5, 1, 2, 3];
+  availableSpeedRatios = [0.2, 0.5, 1, 2, 3, 10];
   ballAngle = 0;
   blueColors = ['#0066ff', '#00cc66', '#ccf5ff'];
   redColors = ['#ffff00', '#ff9900', '#ff0000'];
@@ -57,6 +57,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   goals = [];
   timeDisplay: string;
   totalSeconds: number;
+  finished = false;
 
   // Heatmaps
   showHeatmap = false;
@@ -65,12 +66,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas') canvas;
 
-  constructor(
-    private replayService: ReplayService,
-    private route: ActivatedRoute
-  ) {
+  constructor(private replayService: ReplayService,
+              private route: ActivatedRoute) {
     this.route.params.subscribe(params => this.matchId = params.id);
-    // console.log('matchId', this.matchId);
   }
 
   ngOnInit() {
@@ -102,30 +100,31 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   showHeatMap(carId: string) {
-    console.log('showHeatMap', carId);
-    this.hideHeatMap();
     this.pause = true;
     this.selectedCarIdHeatmap = carId;
+    const data = [];
     this.frames.forEach((frame) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
-        if (id === carId && car.position) {
-          this.heatmapCarLocations.push(this.getScaledPos(car.position));
+        if (id === carId && car.position && car.linear_velocity) {
+          if (car.linear_velocity.X !== 0 || car.linear_velocity.Y !== 0 || car.linear_velocity.Z !== 0) {
+            data.push(this.getScaledPos(car.position));
+          }
         }
       });
     });
+    this.heatmapCarLocations = data;
     this.showHeatmap = true;
   }
 
   hideHeatMap() {
     this.selectedCarIdHeatmap = null;
-    this.heatmapCarLocations = [];
     this.showHeatmap = false;
     this.pause = false;
   }
 
   initTeams(frame: Frame) {
     Object.entries(frame.cars).forEach(([id, car]) => {
-      if(!car.position) {
+      if (!car.position) {
         return;
       }
       const team = (car.position.Y > 0) ? Team.RED : Team.BLUE;
@@ -139,7 +138,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.blueColors.splice(0, 1);
       }
     });
-    console.log(this.carColors);
   }
 
   // Controls
@@ -162,7 +160,11 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   setProgress(event) {
     const totalWidth = document.getElementById('total-prog').offsetWidth;
-    this.index = Math.trunc( event.offsetX * this.totalFrames / totalWidth);
+    this.index = Math.trunc(event.offsetX * this.totalFrames / totalWidth);
+    if (this.finished) {
+      this.finished = false;
+      this.drawFrames();
+    }
   }
 
   // Data
@@ -178,7 +180,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
 
-      
+
         if (!car.position || !car.position.X) {
           return;
         }
@@ -233,12 +235,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.blues.push(car);
       }
     });
-    this.reds.sort(this.compareScore);
-    this.blues.sort(this.compareScore);
-  }
-
-  compareScore(car1: Car, car2: Car) {
-    return car2.scoreboard.score - car1.scoreboard.score;
+    this.reds.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    this.blues.sort((c1, c2) => c1.name.localeCompare(c2.name));
   }
 
   updatePreviousPositions(cars: Car[]) {
@@ -270,11 +268,21 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   updateTime(frame: Frame) {
-    // console.log(this.totalSeconds);
     const frameSeconds = Math.trunc(frame.time);
     const frameMinutes = Math.trunc(frameSeconds / 60);
     const totalMinutes = Math.trunc(this.totalSeconds / 60);
-    this.timeDisplay = frameMinutes + ':' + frameSeconds % 60 + ' / ' + totalMinutes + ':' + this.totalSeconds % 60;
+    this.timeDisplay =
+      this.addLeading0(frameMinutes)
+      + ':'
+      + this.addLeading0(frameSeconds % 60)
+      + ' / '
+      + this.addLeading0(totalMinutes)
+      + ':'
+      + this.addLeading0(this.totalSeconds % 60);
+  }
+
+  addLeading0(value) {
+    return ((value.toString().length === 1) ? '0' : '') + value;
   }
 
   // Draw
@@ -297,13 +305,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawCar(id: string, car: Car) {
-    
-    if(!car.position) {
+
+    if (!car.position) {
       return;
     }
-    
+
     this.ctx.save();
-    
+
     const scaledPos = this.getScaledPos(car.position);
     const x = scaledPos.X;
     const y = scaledPos.Y;
@@ -326,7 +334,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawPath(carId) {
     for (const position of this.previousPositions[carId]) {
-      
+
       if (!position) {
         return;
       }
@@ -347,7 +355,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawCars(cars: Car[]) {
     Object.entries(cars).forEach(([id, car]) => {
-      if(car.position && car.linear_velocity) {
+      if (car.position && car.linear_velocity) {
         this.drawCar(id, car);
       }
     });
@@ -372,8 +380,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawFrames = () => {
-  
+
     if (this.index === this.frames.length - 1) {
+      this.finished = true;
       return;
     }
     this.clear();
@@ -382,7 +391,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     const frame = this.frames[this.index];
 
-   
+
     if (this.index % 5 === 0) {
       this.updateTime(frame);
     }

@@ -1,4 +1,5 @@
-<div class="container-fluid">
+<!--<div class="container-fluid">-->
+<div class="container col-md-12">
   <div class="row">
     <div class="col-md-6">
       <!-- Score -->
@@ -69,7 +70,7 @@
     </div>
     <div class="col-md-6">
       <!-- Scoreboard -->
-      <table class="table table-bordered">
+      <table class="table-bordered">
         <thead>
         <tr>
           <th scope="col"></th>
@@ -93,10 +94,10 @@
           <td>{{car.scoreboard.shots}}</td>
           <td>
             <button
-              (click)="(showHeatmap && selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
+              (click)="(selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
               [class.disabled]="selectedCarIdHeatmap !== car.id"
-              style="cursor: pointer;" type="button" class="btn btn-primary">
-              <i class="fas fa-map" style="font-size: 20px;"></i>
+              style="cursor: pointer;" type="button" class="btn btn-primary btn-sm">
+              <i class="fas fa-map"></i>
             </button>
           </td>
         </tr>
@@ -108,18 +109,17 @@
           <td>{{car.scoreboard.assists}}</td>
           <td>{{car.scoreboard.saves}}</td>
           <td>{{car.scoreboard.shots}}</td>
-          <td (click)="showHeatMap(car.id)">
+          <td>
             <button
-              (click)="(showHeatmap && selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
+              (click)="(selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
               [class.disabled]="selectedCarIdHeatmap !== car.id"
-              style="cursor: pointer;" type="button" class="btn btn-primary">
-              <i class="fas fa-map" style="font-size: 20px;"></i>
+              style="cursor: pointer;" type="button" class="btn btn-primary btn-sm">
+              <i class="fas fa-map"></i>
             </button>
           </td>
         </tr>
         </tbody>
       </table>
-      <button (click)="showHeatMap('ZigomatiX')">Heatmap</button>
     </div>
   </div>
 </div>

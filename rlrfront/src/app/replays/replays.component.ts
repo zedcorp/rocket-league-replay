@@ -16,6 +16,7 @@ export class ReplaysComponent implements OnInit {
 
   playerId;
   replays: Replay[];
+  modalRef;
 
   constructor(
     private replayService: ReplayService,
@@ -35,7 +36,7 @@ export class ReplaysComponent implements OnInit {
   }
 
   open(matchId: string) {
-    const modalRef = this.modalService.open(FieldModalComponent, { size: 'lg'});
-    modalRef.componentInstance.matchId = matchId;
+    this.modalRef = this.modalService.open(FieldModalComponent, { size: 'lg'});
+    this.modalRef.componentInstance.matchId = matchId;
   }
 }

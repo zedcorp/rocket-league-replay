@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+echo ">> Remove previous app"
+ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "sudo rm -Rf rocket-league-replay"
+
+echo ">> Get new version"
+ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "git clone git@github.com:ZobCorp/rocket-league-replay.git"
+
 echo ">> Update app"
 ssh -o "StrictHostKeyChecking no" -tt -i rocketleaguekey.pem ubuntu@34.248.29.223 "cd rocket-league-replay && git pull"
 
