@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 
-import {NgbModal, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-field-modal',
