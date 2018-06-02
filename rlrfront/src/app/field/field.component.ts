@@ -69,7 +69,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
   constructor(private replayService: ReplayService,
               private route: ActivatedRoute) {
     this.route.params.subscribe(params => this.matchId = params.id);
-    // console.log('matchId', this.matchId);
   }
 
   ngOnInit() {
@@ -101,23 +100,24 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   showHeatMap(carId: string) {
-    console.log('showHeatMap', carId);
-    this.hideHeatMap();
     this.pause = true;
     this.selectedCarIdHeatmap = carId;
+    const data = [];
     this.frames.forEach((frame) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
-        if (id === carId && car.position) {
-          this.heatmapCarLocations.push(this.getScaledPos(car.position));
+        if (id === carId && car.position && car.linear_velocity) {
+          if (car.linear_velocity.X !== 0 || car.linear_velocity.Y !== 0 || car.linear_velocity.Z !== 0) {
+            data.push(this.getScaledPos(car.position));
+          }
         }
       });
     });
+    this.heatmapCarLocations = data;
     this.showHeatmap = true;
   }
 
   hideHeatMap() {
     this.selectedCarIdHeatmap = null;
-    this.heatmapCarLocations = [];
     this.showHeatmap = false;
     this.pause = false;
   }
@@ -138,7 +138,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.blueColors.splice(0, 1);
       }
     });
-    console.log(this.carColors);
   }
 
   // Controls
