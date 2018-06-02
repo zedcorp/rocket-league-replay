@@ -65,10 +65,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   @ViewChild('canvas') canvas;
 
-  constructor(
-    private replayService: ReplayService,
-    private route: ActivatedRoute
-  ) {
+  constructor(private replayService: ReplayService,
+              private route: ActivatedRoute) {
     this.route.params.subscribe(params => this.matchId = params.id);
     // console.log('matchId', this.matchId);
   }
@@ -125,7 +123,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   initTeams(frame: Frame) {
     Object.entries(frame.cars).forEach(([id, car]) => {
-      if(!car.position) {
+      if (!car.position) {
         return;
       }
       const team = (car.position.Y > 0) ? Team.RED : Team.BLUE;
@@ -162,7 +160,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   setProgress(event) {
     const totalWidth = document.getElementById('total-prog').offsetWidth;
-    this.index = Math.trunc( event.offsetX * this.totalFrames / totalWidth);
+    this.index = Math.trunc(event.offsetX * this.totalFrames / totalWidth);
   }
 
   // Data
@@ -233,12 +231,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
         this.blues.push(car);
       }
     });
-    this.reds.sort((c1, c2) => c2.name.localeCompare(c1.name));
-    this.blues.sort((c1, c2) => c2.name.localeCompare(c1.name));
-  }
-
-  compareScore(car1: Car, car2: Car) {
-    return car2.scoreboard.score - car1.scoreboard.score;
+    this.reds.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    this.blues.sort((c1, c2) => c1.name.localeCompare(c2.name));
   }
 
   updatePreviousPositions(cars: Car[]) {
@@ -308,7 +302,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawCar(id: string, car: Car) {
 
-    if(!car.position) {
+    if (!car.position) {
       return;
     }
 
@@ -357,7 +351,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   drawCars(cars: Car[]) {
     Object.entries(cars).forEach(([id, car]) => {
-      if(car.position && car.linear_velocity) {
+      if (car.position && car.linear_velocity) {
         this.drawCar(id, car);
       }
     });
