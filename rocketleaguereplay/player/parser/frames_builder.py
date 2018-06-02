@@ -1,5 +1,6 @@
 import json
 import copy
+import math
 from player.parser.replay_data import Player, Match, Car, Team, Event, Car, Ball, Actor
 
 from collections import defaultdict
@@ -171,8 +172,10 @@ def build_frame(match):
     frame['teams'] = {}
 
     for actor_id in match.actors:
-        frame['cars'][ match.actors[actor_id].name] = copy.deepcopy(match.actors[actor_id].car).__dict__
-        frame['cars'][ match.actors[actor_id].name]['name'] = match.actors[actor_id].name
+        car = copy.deepcopy(match.actors[actor_id].car)
+        car.name = match.actors[actor_id].name
+        car.dist_ball = calc_dist(car, match.ball[0])
+        frame['cars'][ match.actors[actor_id].name] = car.__dict__
         
     for id_ball in match.ball:
         frame['ball'] = copy.deepcopy(match.ball[id_ball]).__dict__
@@ -180,6 +183,9 @@ def build_frame(match):
     for team in match.teams:
         frame['teams'][match.teams[team].color] = {'score' : match.teams[team].score}
     return frame
+
+def calc_dist(actor1, actor2):
+    return  math.sqrt((actor1.position['X']-actor2.position['X'])**2 + (actor1.position['Y']-actor2.position['Y'])**2+ (actor1.position['Z']-actor2.position['Z'])**2)
 
 def update_cars(cars, actor_update):
     
