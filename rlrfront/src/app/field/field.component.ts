@@ -278,7 +278,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   addLeading0(value) {
-    return (value.length === 1) ? '0' : '' + value;
+    return ((value.toString().length === 1) ? '0' : '') + value;
   }
 
   // Draw
