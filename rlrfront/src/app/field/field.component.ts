@@ -40,7 +40,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   blues = [];
   carTeams = {};
   carColors = {};
-  availableSpeedRatios = [0.2, 0.5, 1, 2, 3];
+  availableSpeedRatios = [0.2, 0.5, 1, 2, 3, 10];
   ballAngle = 0;
   blueColors = ['#0066ff', '#00cc66', '#ccf5ff'];
   redColors = ['#ffff00', '#ff9900', '#ff0000'];
@@ -57,6 +57,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   goals = [];
   timeDisplay: string;
   totalSeconds: number;
+  finished = false;
 
   // Heatmaps
   showHeatmap = false;
@@ -161,6 +162,10 @@ export class FieldComponent implements OnInit, AfterViewInit {
   setProgress(event) {
     const totalWidth = document.getElementById('total-prog').offsetWidth;
     this.index = Math.trunc(event.offsetX * this.totalFrames / totalWidth);
+    if (this.finished) {
+      this.finished = false;
+      this.drawFrames();
+    }
   }
 
   // Data
@@ -378,6 +383,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
   drawFrames = () => {
 
     if (this.index === this.frames.length - 1) {
+      this.finished = true;
       return;
     }
     this.clear();
