@@ -17,8 +17,7 @@ const routes: Routes = [
   {path: 'field', component: FieldComponent},
   {path: 'players', component: PlayersComponent},
   {path: 'players/:id', component: ReplaysComponent},
-  {path: 'detail/:id', component: PlayerDetailComponent},
-  {path: 'heatmap', component: HeatmapComponent}
+  {path: 'detail/:id', component: PlayerDetailComponent}
 ];
 
 @NgModule({

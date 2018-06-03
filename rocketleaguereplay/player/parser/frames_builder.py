@@ -108,7 +108,10 @@ def add_frames(match, frames_data):
                         update_car_or_ball_state(match.ball[id], actor_update)
                     if id in match.cars:
                         update_car_or_ball_state(match.cars[id], actor_update)
-            
+
+                if 'TAGame.Car_TA:ReplicatedDemolish' in actor_update:
+                    get_car(match, actor_update).demolition = True
+
             else:
                 if 'TAGame.Team_Soccar_TA' == actor_update['ClassName']:
                    add_team(match, actor_update)
@@ -210,6 +213,7 @@ def get_car(match, actor_update):
             'shots' : 0,
             'goals' : 0
         }
+        match.cars[id].demolition = False
     return match.cars[id]
 
 def update_car_or_ball_state(car_or_ball, actor_update):

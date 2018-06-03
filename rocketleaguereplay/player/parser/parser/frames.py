@@ -175,6 +175,7 @@ def load_frames():
                         frames[i]['cars'][player_id]['drift'] = False
                         frames[i]['cars'][player_id]['2nd_cam'] = False
                         frames[i]['cars'][player_id]['driving'] = False
+                        frames[i]['cars'][player_id]['demolition'] = False
 
         for update in data['Frames'][i]['ActorUpdates']:
             actor_id = update['Id']
