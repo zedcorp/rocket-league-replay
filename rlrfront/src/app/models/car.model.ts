@@ -13,4 +13,5 @@ export class Car {
   rot: Coordinates;
   scoreboard: CarScoreBoard;
   color: string;
+  demolition;
 }

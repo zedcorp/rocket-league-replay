@@ -23,7 +23,16 @@ export class FieldComponent implements OnInit, AfterViewInit {
   imgGroundBoosts = new Image();
   showBoosts = true;
   imgBall = new Image();
-  imgCar = new Image();
+  imgCarBlue1 = new Image();
+  imgCarBlue2 = new Image();
+  imgCarBlue3 = new Image();
+  imgCarRed1 = new Image();
+  imgCarRed2 = new Image();
+  imgCarRed3 = new Image();
+  redImages = [this.imgCarRed1, this.imgCarRed2, this.imgCarRed3];
+  blueImages = [this.imgCarBlue1, this.imgCarBlue2, this.imgCarBlue3];
+  carImages = {};
+  imgDemolition = new Image();
   fieldWidth = 300;
   fieldHeight = 450;
   carLength = 20;
@@ -74,9 +83,15 @@ export class FieldComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     console.log('matchId', this.matchId);
     this.imgGround.src = '/assets/Ground.png';
-    this.imgGroundBoosts.src = '/assets/groundboosts.png';
+    this.imgGroundBoosts.src = '/assets/groundwhite.png';
     this.imgBall.src = '/assets/Ball.png';
-    this.imgCar.src = '/assets/Octane.png';
+    this.imgCarBlue1.src = '/assets/car_blue_1.png';
+    this.imgCarBlue2.src = '/assets/car_blue_2.png';
+    this.imgCarBlue3.src = '/assets/car_blue_3.png';
+    this.imgCarRed1.src = '/assets/car_red_1.png';
+    this.imgCarRed2.src = '/assets/car_red_2.png';
+    this.imgCarRed3.src = '/assets/car_red_3.png';
+    this.imgDemolition.src = '/assets/boom.png';
     this.replayService.getReplay(this.matchId)
       .subscribe(frames => {
         // this.frames = frames.slice(0, 1);
@@ -129,13 +144,17 @@ export class FieldComponent implements OnInit, AfterViewInit {
       }
       const team = (car.position.Y > 0) ? Team.RED : Team.BLUE;
       this.carTeams[id] = team;
-      this.carColors[id] = (car.position.Y > 0) ? Team.RED : Team.BLUE;
+      // this.carColors[id] = (car.position.Y > 0) ? Team.RED : Team.BLUE;
       if (team === Team.RED) {
         this.carColors[id] = this.redColors[0];
         this.redColors.splice(0, 1);
+        this.carImages[id] = this.redImages[0];
+        this.redImages.splice(0, 1);
       } else {
         this.carColors[id] = this.blueColors[0];
         this.blueColors.splice(0, 1);
+        this.carImages[id] = this.blueImages[0];
+        this.blueImages.splice(0, 1);
       }
     });
   }
@@ -179,8 +198,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
-
-
         if (!car.position || !car.position.X) {
           return;
         }
@@ -218,6 +235,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.xRange = Math.max(...xs) - Math.min(...xs);
     this.yRange = Math.max(...ys) - Math.min(...ys);
     this.zRange = Math.max(...zs) - Math.min(...zs);
+
   }
 
   getGoalMargin(frameIndex) {
@@ -321,9 +339,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.ctx.rotate(angle);
     this.ctx.scale(scaledPos.Z, scaledPos.Z);
 
-    this.ctx.fillStyle = this.carColors[id];
-    this.ctx.fillRect(-this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
-    this.ctx.drawImage(this.imgCar, -this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
+    this.ctx.drawImage(this.carImages[id], -this.carWidth / 2, -this.carLength / 2, this.carWidth, this.carLength);
 
     this.ctx.restore();
 
@@ -353,10 +369,26 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
   }
 
+  drawDemolition(car) {
+    this.ctx.save();
+
+    const scaledPos = this.getScaledPos(car.position);
+    const x = scaledPos.X;
+    const y = scaledPos.Y;
+
+    this.ctx.translate(x, y);
+
+    this.ctx.drawImage(this.imgDemolition, -20, -20, 40, 40);
+
+    this.ctx.restore();
+  }
+
   drawCars(cars: Car[]) {
     Object.entries(cars).forEach(([id, car]) => {
       if (car.position && car.linear_velocity) {
         this.drawCar(id, car);
+      } else if (car.demolition) {
+        this.drawDemolition(car);
       }
     });
   }

@@ -11,8 +11,6 @@ declare var h337: any;
 })
 export class HeatmapComponent implements OnInit {
 
-  @Input() fieldWidth;
-  @Input() fieldHeight;
   private _carLocations: Coordinates[];
   heatmap;
 
@@ -22,7 +20,6 @@ export class HeatmapComponent implements OnInit {
   @Input()
   set carLocations(carLocations: Coordinates[]) {
     this._carLocations = carLocations;
-    console.log('init heatmap');
 
     const container = document.getElementById('container');
     while (container.firstChild) {
@@ -30,7 +27,8 @@ export class HeatmapComponent implements OnInit {
     }
 
     this.heatmap = h337.create({
-      container: container
+      container: container,
+      radius: 50
     });
 
     const data = this._carLocations.map(position => ({x: position.X, y: position.Y, value: 1}));
@@ -39,7 +37,6 @@ export class HeatmapComponent implements OnInit {
       max: 100,
       data: data
     });
-    // heatmap.repaint();
   }
 
   get carLocations(): Coordinates[] { return this._carLocations; }
