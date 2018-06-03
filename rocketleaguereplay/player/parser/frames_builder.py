@@ -66,7 +66,7 @@ def add_players(match, metadata):
     
     match.players = players
     match.cars = {}
-    match.ball = {}
+    match.ball = Ball()
     match.teams = {}
     match.actors = {}
     return 
@@ -84,8 +84,9 @@ def add_frames(match, frames_data):
         
                 # Check for deleted actors
         for actor_id in frame_data['DeletedActorIds']:
-            if actor_id in match.ball:
-                match.ball = {}
+            if actor_id == match.ball.id:
+                match.ball = Ball()
+                match.ball.id = None
         
         for actor_update in frame_data['ActorUpdates']:
             
@@ -105,8 +106,8 @@ def add_frames(match, frames_data):
                     match.teams[actor_update['Id']].score = actor_update['Engine.TeamInfo:Score']
                 if 'TAGame.RBActor_TA:ReplicatedRBState' in actor_update:
                     id = actor_update['Id']
-                    if id in match.ball:
-                        update_car_or_ball_state(match.ball[id], actor_update)
+                    if id == match.ball.id:
+                        update_car_or_ball_state(match.ball, actor_update)
                     if id in match.cars:
                         update_car_or_ball_state(match.cars[id], actor_update)
 
@@ -138,9 +139,10 @@ def add_frames(match, frames_data):
                 
                 elif 'TAGame.Ball_TA' == actor_update['ClassName']:
                     ball_id = actor_update['Id']
-                    if ball_id not in match.ball:
-                         match.ball[ball_id] = Ball()
-                    update_car_or_ball_state(match.ball[ball_id], actor_update)
+                    if not hasattr(match.ball, 'id') or ball_id != match.ball.id:
+                         match.ball = Ball()
+                         match.ball.id = ball_id
+                    update_car_or_ball_state(match.ball, actor_update)
                 
                 elif 'TAGame.PRI_TA' == actor_update['ClassName']:
                    
@@ -160,7 +162,18 @@ def add_frames(match, frames_data):
                             match.teams[actor_update['Id']].color = 'blue'
                         elif actor_update['TypeName'] == 'Archetypes.Teams.Team1':
                             match.teams[actor_update['Id']].color = 'red'
-                        
+
+        for actor_id in match.actors:
+            
+            car = match.actors[actor_id].car
+            
+            car.dist_ball = calc_dist(car, match.ball)
+            if car.dist_ball is not None and car.dist_ball < 25000 and match.duration - car.lasthit >= 1:
+                car.hit = True
+                car.scoreboard['hits'] = car.scoreboard['hits'] + 1
+                car.lasthit = match.duration
+            else:
+                car.hit = False
         
         new_frame = build_frame(match)
         frames.append(new_frame)
@@ -174,21 +187,26 @@ def build_frame(match):
     frame['ball'] = {}
     frame['teams'] = {}
 
+    min_car_dist = float("inf")
+
+    ball = match.ball 
+
     for actor_id in match.actors:
         car = copy.deepcopy(match.actors[actor_id].car)
         car.name = match.actors[actor_id].name
-        car.dist_ball = calc_dist(car, match.ball[0])
         frame['cars'][ match.actors[actor_id].name] = car.__dict__
-        
-    for id_ball in match.ball:
-        frame['ball'] = copy.deepcopy(match.ball[id_ball]).__dict__
+    
+    frame['ball'] = copy.deepcopy(ball).__dict__
     
     for team in match.teams:
         frame['teams'][match.teams[team].color] = {'score' : match.teams[team].score}
+        
     return frame
 
 def calc_dist(actor1, actor2):
-    return  math.sqrt((actor1.position['X']-actor2.position['X'])**2 + (actor1.position['Y']-actor2.position['Y'])**2+ (actor1.position['Z']-actor2.position['Z'])**2)
+    if not(hasattr(actor1, 'position') and hasattr(actor2, 'position')):
+        return None
+    return  round(math.sqrt((actor1.position['X']-actor2.position['X'])**2 + (actor1.position['Y']-actor2.position['Y'])**2+ (actor1.position['Z']-actor2.position['Z'])**2))
 
 def update_cars(cars, actor_update):
     
@@ -212,12 +230,15 @@ def get_car(match, actor_update):
     id = actor_update['Id']
     if id not in match.cars:
         match.cars[id] = Car()
+        match.cars[id].dist_ball = None
+        match.cars[id].lasthit = 0
         match.cars[id].scoreboard = {
             'saves' : 0,
             'score' : 0,
             'assists' : 0,
             'shots' : 0,
-            'goals' : 0
+            'goals' : 0,
+            'hits' : 0
         }
         match.cars[id].demolition = False
     return match.cars[id]

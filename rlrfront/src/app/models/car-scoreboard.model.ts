@@ -4,4 +4,5 @@ export class CarScoreBoard {
   saves: number;
   score: number;
   shots: number;
+  hits: number;
 }

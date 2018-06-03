@@ -387,6 +387,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
     Object.entries(cars).forEach(([id, car]) => {
       if (car.position && car.linear_velocity) {
         this.drawCar(id, car);
+        if (car.dist_ball < 25000) {
+          console.log(car.dist_ball + ' : ' + car.name);
+        }
       } else if (car.demolition) {
         this.drawDemolition(car);
       }
@@ -436,8 +439,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.updatePreviousPositions(frame.cars);
     this.updateProgress();
 
-    this.drawCars(frame.cars);
     this.drawBall(frame.ball);
+    this.drawCars(frame.cars);
+
     if (this.index % 20 === 0) {
       this.updateTeams(frame);
     }

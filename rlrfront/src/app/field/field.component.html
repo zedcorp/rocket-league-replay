@@ -80,6 +80,7 @@
           <th scope="col">Assists</th>
           <th scope="col">Saves</th>
           <th scope="col">Shots</th>
+          <th scope="col">Hits</th>
           <th scope="col">Actions</th>
         </tr>
         </thead>
@@ -92,6 +93,7 @@
           <td>{{car.scoreboard.assists}}</td>
           <td>{{car.scoreboard.saves}}</td>
           <td>{{car.scoreboard.shots}}</td>
+          <td>{{car.scoreboard.hits}}</td>
           <td>
             <button
               (click)="(selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
@@ -109,6 +111,7 @@
           <td>{{car.scoreboard.assists}}</td>
           <td>{{car.scoreboard.saves}}</td>
           <td>{{car.scoreboard.shots}}</td>
+          <td>{{car.scoreboard.hits}}</td>
           <td>
             <button
               (click)="(selectedCarIdHeatmap === car.id) ? hideHeatMap() : showHeatMap(car.id)"
