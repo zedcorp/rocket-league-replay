@@ -87,20 +87,23 @@ def add_frames(match, frames_data):
             if actor_id == match.ball.id:
                 match.ball = Ball()
                 match.ball.id = None
+            if actor_id in match.cars:
+                match.cars.pop(actor_id, None)
         
         for actor_update in frame_data['ActorUpdates']:
             
             if 'ClassName' not in actor_update:
                 if 'TAGame.PRI_TA:MatchSaves' in actor_update:
-                    get_car(match, actor_update).scoreboard['saves'] = actor_update['TAGame.PRI_TA:MatchSaves']
+                    match.actors[actor_update['Id']].scoreboard['saves'] = actor_update['TAGame.PRI_TA:MatchSaves']
                 if 'TAGame.PRI_TA:MatchScore' in actor_update:
-                    get_car(match, actor_update).scoreboard['score'] = actor_update['TAGame.PRI_TA:MatchScore']
+                    match.actors[actor_update['Id']].scoreboard['score'] = actor_update['TAGame.PRI_TA:MatchScore']
+                    print('TAGame.PRI_TA:MatchScore old: {} new score: {}'.format(actor_update['Id'], actor_update['TAGame.PRI_TA:MatchScore']))
                 if 'TAGame.PRI_TA:MatchAssists' in actor_update:
-                    get_car(match, actor_update).scoreboard['assists'] = actor_update['TAGame.PRI_TA:MatchAssists']
+                    match.actors[actor_update['Id']].scoreboard['assists'] = actor_update['TAGame.PRI_TA:MatchAssists']
                 if 'TAGame.PRI_TA:MatchShots' in actor_update:
-                    get_car(match, actor_update).scoreboard['shots'] = actor_update['TAGame.PRI_TA:MatchShots']
+                    match.actors[actor_update['Id']].scoreboard['shots'] = actor_update['TAGame.PRI_TA:MatchShots']
                 if 'TAGame.PRI_TA:MatchGoals' in actor_update:
-                    get_car(match, actor_update).scoreboard['goals'] = actor_update['TAGame.PRI_TA:MatchGoals']
+                    match.actors[actor_update['Id']].scoreboard['goals'] = actor_update['TAGame.PRI_TA:MatchGoals']
 
                 if 'Engine.TeamInfo:Score' in actor_update:
                     match.teams[actor_update['Id']].score = actor_update['Engine.TeamInfo:Score']
@@ -120,6 +123,9 @@ def add_frames(match, frames_data):
                 
                 elif 'TAGame.Car_TA' == actor_update['ClassName']:
                     if 'Engine.Pawn:PlayerReplicationInfo' in actor_update:
+                        
+                        print('Engine.Pawn:PlayerReplicationInfo old: {} new: {}'.format(actor_update['Engine.Pawn:PlayerReplicationInfo']['ActorId'], actor_update['Id']))
+                        
                         actor_id = actor_update['Engine.Pawn:PlayerReplicationInfo']['ActorId']
                         if actor_id in match.actors:
                             actor = match.actors[actor_update['Engine.Pawn:PlayerReplicationInfo']['ActorId']]
@@ -131,8 +137,6 @@ def add_frames(match, frames_data):
                         else:
                             match.cars[actor_update['Id']] = get_car(match, actor_update)
                             actor.car = match.cars[actor_update['Id']]
-                            if actor_id in match.cars:
-                                actor.car.scoreboard = match.cars[actor_id].scoreboard
                     car = get_car(match, actor_update)
                     update_car_or_ball_state(car, actor_update)
                     
@@ -170,7 +174,7 @@ def add_frames(match, frames_data):
             car.dist_ball = calc_dist(car, match.ball)
             if car.dist_ball is not None and car.dist_ball < 300 and match.duration - car.lasthit >= 1:
                 car.hit = True
-                car.scoreboard['hits'] = car.scoreboard['hits'] + 1
+                match.actors[actor_id].scoreboard['hits'] = match.actors[actor_id].scoreboard['hits'] + 1
                 car.lasthit = match.duration
             else:
                 car.hit = False
@@ -193,6 +197,7 @@ def build_frame(match):
 
     for actor_id in match.actors:
         car = copy.deepcopy(match.actors[actor_id].car)
+        car.scoreboard = copy.deepcopy(match.actors[actor_id].scoreboard)
         car.name = match.actors[actor_id].name
         frame['cars'][ match.actors[actor_id].name] = car.__dict__
     
@@ -232,14 +237,6 @@ def get_car(match, actor_update):
         match.cars[id] = Car()
         match.cars[id].dist_ball = None
         match.cars[id].lasthit = 0
-        match.cars[id].scoreboard = {
-            'saves' : 0,
-            'score' : 0,
-            'assists' : 0,
-            'shots' : 0,
-            'goals' : 0,
-            'hits' : 0
-        }
         match.cars[id].demolition = False
     return match.cars[id]
 
