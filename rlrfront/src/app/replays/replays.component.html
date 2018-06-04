@@ -8,6 +8,7 @@
     [class.alert-danger]="!replay.win"
     [class.alert-success]="replay.win">
     <td>{{replay.datetime * 1000 | date}}</td>
+    <td>{{replay.rlmatchid}}</td>
     <td>{{replay.name1}}</td>
     <td>{{replay.score1}}</td>
     <td>{{replay.score2}}</td>

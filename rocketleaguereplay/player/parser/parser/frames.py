@@ -51,6 +51,7 @@ def load_frames():
     current_boost_objects = {}
     player_info = get_player_info()
     game_event_num = get_game_event_num()
+    cars_boosts = {}
 
     frames = [len(data['Frames'])]
     frames[0] = {
@@ -93,6 +94,8 @@ def load_frames():
             'drift': False,
             '2nd_cam': False,
             'driving': False,
+            'demolition': False,
+            'boost_pickup': False,
             'scoreboard': {
                 'score': 0,
                 'goals': 0,
@@ -176,6 +179,7 @@ def load_frames():
                         frames[i]['cars'][player_id]['2nd_cam'] = False
                         frames[i]['cars'][player_id]['driving'] = False
                         frames[i]['cars'][player_id]['demolition'] = False
+                        frames[i]['cars'][player_id]['boost_pickup'] = False
 
         for update in data['Frames'][i]['ActorUpdates']:
             actor_id = update['Id']

@@ -75,12 +75,14 @@ def add_frames(match, frames_data):
     
     frames = []
     
-    for frame_data in frames_data:
+    for index, frame_data in enumerate(frames_data):
         
         frame = {}
         match.duration = frame_data['Time']
         frame['Time'] = frame_data['Time']
-        
+
+        for car_id in match.cars.keys():
+            match.cars[car_id].boost_pickup = False
         
                 # Check for deleted actors
         for actor_id in frame_data['DeletedActorIds']:
@@ -163,6 +165,11 @@ def add_frames(match, frames_data):
                         elif actor_update['TypeName'] == 'Archetypes.Teams.Team1':
                             match.teams[actor_update['Id']].color = 'red'
 
+                if 'TAGame.VehiclePickup_Boost_TA' == actor_update['ClassName'] and 'TAGame.VehiclePickup_TA:ReplicatedPickupData' in actor_update:
+                    actor_update['Id'] = actor_update['TAGame.VehiclePickup_TA:ReplicatedPickupData']['ActorId']
+                    car = get_car(match, actor_update)
+                    car.boost_pickup = True
+
         for actor_id in match.actors:
             
             car = match.actors[actor_id].car
@@ -174,7 +181,7 @@ def add_frames(match, frames_data):
                 car.lasthit = match.duration
             else:
                 car.hit = False
-        
+
         new_frame = build_frame(match)
         frames.append(new_frame)
     match.json = frames
@@ -241,6 +248,7 @@ def get_car(match, actor_update):
             'hits' : 0
         }
         match.cars[id].demolition = False
+        match.cars[id].boost_pickup = False
     return match.cars[id]
 
 def update_car_or_ball_state(car_or_ball, actor_update):
@@ -256,7 +264,7 @@ def update_car_or_ball_state(car_or_ball, actor_update):
             car_or_ball.angular_velocity = state['AngularVelocity']
         if 'Sleeping' in state:
             car_or_ball.sleeping = state['Sleeping']
-            
+
 def add_team(match, actor_update):
     
     id = actor_update['Id']

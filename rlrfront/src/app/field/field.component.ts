@@ -7,6 +7,7 @@ import {Coordinates} from '../models/coordinates.model';
 import {Ball} from '../models/ball.model';
 import {Team} from '../models/team';
 import {ActivatedRoute} from '@angular/router';
+import {Boost} from '../models/boost.model';
 
 @Component({
   selector: 'app-field',
@@ -14,6 +15,133 @@ import {ActivatedRoute} from '@angular/router';
   styleUrls: ['./field.component.css']
 })
 export class FieldComponent implements OnInit, AfterViewInit {
+
+  allBoosts = [];
+  boostsMid = [
+    {
+      'X': 3450,
+      'Y': 0,
+      'Z': 17.01,
+      big: true,
+      color: '#659df7'
+    },
+    {
+      'X': 1040.55,
+      'Y': 0,
+      'Z': 17.01,
+      color: '#659df7'
+    },
+    {
+      'X': -1174.4,
+      'Y': 0,
+      'Z': 17.01,
+      color: '#659df7'
+    },
+    {
+      'X': -3450,
+      'Y': 0,
+      'Z': 16.98,
+      big: true,
+      color: '#659df7'
+    }
+  ];
+  boostsTop = [
+    {
+      'X': -2900,
+      'Y': -4154,
+      'Z': 17.01,
+      big: true,
+      color: '#659df7'
+    },
+    {
+      'X': -1850,
+      'Y': -4154,
+      'Z': 17.01,
+      color: '#659df7'
+    },
+    {
+      'X': 0,
+      'Y': -4154,
+      'Z': 19.06,
+      color: '#659df7'
+    },
+    {
+      'X': 2900,
+      'Y': -4154,
+      'Z': 17.01,
+      color: '#659df7',
+      big: true
+    },
+    {
+      'X': 1850,
+      'Y': -4154,
+      'Z': 17,
+      color: '#659df7'
+    },
+
+    {
+      'X': -875,
+      'Y': -3250,
+      'Z': 44.03,
+      color: '#659df7'
+    },
+    {
+      'X': 875,
+      'Y': -3250,
+      'Z': 19.53,
+      color: '#659df7'
+    },
+
+    {
+      'X': 0,
+      'Y': -2900,
+      'Z': 17.01,
+      color: '#659df7'
+    },
+
+    {
+      'X': 3550,
+      'Y': -2500,
+      'Z': 17.01,
+      color: 'orange'
+    },
+    {
+      'X': -3550,
+      'Y': -2500,
+      'Z': 17.01,
+      color: 'orange'
+    },
+    {
+      'X': -1745,
+      'Y': -2500,
+      'Z': 104.96,
+      color: 'orange'
+    },
+    {
+      'X': 1745,
+      'Y': -2500,
+      'Z': 17.01,
+      color: 'orange'
+    },
+    {
+      'X': 0,
+      'Y': -1209.91,
+      'Z': 17.01,
+      color: 'magenta'
+    },
+    {
+      'X': 1972.35,
+      'Y': -1123.49,
+      'Z': 17.01,
+      color: 'magenta'
+    },
+    {
+      'X': -2180.67,
+      'Y': -992.76,
+      'Z': 17.01,
+      color: 'magenta'
+    },
+  ];
 
   @Input() matchId;
   frames: Frame[];
@@ -67,6 +195,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
   timeDisplay: string;
   totalSeconds: number;
   finished = false;
+  boostPickups = [];
+  boostPickupsPerCar = {};
+  boostPerCar = {};
 
   // Heatmaps
   showHeatmap = false;
@@ -92,6 +223,19 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.imgCarRed2.src = '/assets/car_red_2.png';
     this.imgCarRed3.src = '/assets/car_red_3.png';
     this.imgDemolition.src = '/assets/boom.png';
+
+    Array.prototype.push.apply(this.allBoosts, this.boostsMid);
+    Array.prototype.push.apply(this.allBoosts, this.boostsTop);
+    Array.prototype.push.apply(this.allBoosts, this.boostsTop.map(boost => {
+      return {
+        X: boost.X,
+        Y: -boost.Y,
+        Z: boost.Z,
+        color: boost.color,
+        big: boost.big
+    };
+    }));
+
     this.replayService.getReplay(this.matchId)
       .subscribe(frames => {
         // this.frames = frames.slice(0, 1);
@@ -144,7 +288,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
       }
       const team = (car.position.Y > 0) ? Team.RED : Team.BLUE;
       this.carTeams[id] = team;
-      // this.carColors[id] = (car.position.Y > 0) ? Team.RED : Team.BLUE;
+
       if (team === Team.RED) {
         this.carColors[id] = this.redColors[0];
         this.redColors.splice(0, 1);
@@ -198,6 +342,13 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     frames.forEach((frame, frameIndex) => {
       Object.entries(frame.cars).forEach(([id, car]) => {
+        if (car.boost_pickup) {
+          this.boostPickups.push(car.position as Boost);
+          if (!this.boostPickupsPerCar[car.name]) {
+            this.boostPickupsPerCar[car.name] = 0;
+          }
+          this.boostPickupsPerCar[car.name]++;
+        }
         if (!car.position || !car.position.X) {
           return;
         }
@@ -231,6 +382,9 @@ export class FieldComponent implements OnInit, AfterViewInit {
         });
       }
     });
+
+    console.log('this.boostPickupsPerCar', this.boostPickupsPerCar);
+    console.log('this.boostPickups.length', this.boostPickups.length);
 
     this.xRange = Math.max(...xs) - Math.min(...xs);
     this.yRange = Math.max(...ys) - Math.min(...ys);
@@ -279,6 +433,12 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.progressWidth = Math.trunc((this.index / this.totalFrames) * width);
   }
 
+  updateCarsBoost(cars: Car[]) {
+    Object.entries(cars).forEach(([carId, car]) => {
+      this.boostPerCar[carId] = car.boost;
+    });
+  }
+
   setCarIds(cars: Car[]) {
     Object.entries(cars).forEach(([carId, car]) => {
       car.id = carId;
@@ -312,6 +472,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     } else {
       this.ctx.drawImage(this.imgGround, -30, -30, this.fieldWidth + 60, this.fieldHeight + 60);
     }
+    this.drawBoosts();
   }
 
   getScaledPos(position: Coordinates) {
@@ -320,6 +481,48 @@ export class FieldComponent implements OnInit, AfterViewInit {
       Y: Math.trunc((position.Y * this.fieldHeight / this.yRange) + (this.fieldHeight / 2)),
       Z: 1 + (position.Z * this.zRatio / this.zRange)
     } as Coordinates;
+  }
+
+  drawBoosts() {
+    const time = this.frames[this.index].time;
+    for (const boost of this.allBoosts) {
+      const spawnDelay = 5 * (boost.big ? 2 : 1);
+      if (!boost.pickupTime || time < boost.pickupTime || time - boost.pickupTime > spawnDelay) {
+        this.ctx.save();
+        const scaledPos = this.getScaledPos(boost);
+        const x = scaledPos.X;
+        const y = scaledPos.Y;
+        const radius = 5 + (boost.big ? 3 : 0);
+        this.ctx.translate(x, y);
+        this.ctx.fillStyle = (boost.Y === 0) ? 'black' : (boost.Y < 0) ? '#659df7' : '#ef3939';
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+    }
+  }
+
+  getCloseBoosts(car: Car) {
+    const response: Boost[] = [];
+    const maxDistance = 300;
+    for (const boost of this.allBoosts) {
+      const x = boost.X - car.position.X;
+      const y = boost.Y - car.position.Y;
+      const distance = Math.sqrt(x * x + y * y);
+      if (distance < maxDistance) {
+        response.push(boost);
+      }
+    }
+    return response;
+  }
+
+  updateBoosts(car: Car) {
+    const closeBoosts = this.getCloseBoosts(car);
+    for (const boost of closeBoosts) {
+      boost.pickupTime = this.frames[this.index].time;
+    }
   }
 
   drawCar(id: string, car: Car) {
@@ -345,6 +548,10 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     if (this.path) {
       this.drawPath(id);
+    }
+
+    if (car.boost_pickup) {
+      this.updateBoosts(car);
     }
   }
 
@@ -415,7 +622,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
   }
 
   drawFrames = () => {
-
     if (this.index === this.frames.length - 1) {
       this.finished = true;
       return;
@@ -426,7 +632,6 @@ export class FieldComponent implements OnInit, AfterViewInit {
     }
     const frame = this.frames[this.index];
 
-
     if (this.index % 5 === 0) {
       this.updateTime(frame);
     }
@@ -436,6 +641,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
     this.setCarIds(frame.cars);
 
+    this.updateCarsBoost(frame.cars);
     this.updatePreviousPositions(frame.cars);
     this.updateProgress();
 
@@ -445,6 +651,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
     if (this.index % 20 === 0) {
       this.updateTeams(frame);
     }
+
     setTimeout(this.drawFrames.bind({}), (1000 / 60) / this.speedRatio);
   }
 }

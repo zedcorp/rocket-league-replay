@@ -50,6 +50,8 @@ def update_car_data(update, frames, i, player_id):
     if 'TAGame.Car_TA:ReplicatedDemolish' in update.keys():
         frames[i]['cars'][player_id]['demolition'] = \
             update['TAGame.Car_TA:ReplicatedDemolish']
+    if 'TAGame.VehiclePickup_TA:ReplicatedPickupData' in update.keys():
+        frames[i]['cars'][player_id]['boost_pickup'] = True
 
 
 def update_player_data(update, frames, i, actor_id):
