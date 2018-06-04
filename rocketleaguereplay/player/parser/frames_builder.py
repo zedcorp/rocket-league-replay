@@ -168,7 +168,7 @@ def add_frames(match, frames_data):
             car = match.actors[actor_id].car
             
             car.dist_ball = calc_dist(car, match.ball)
-            if car.dist_ball is not None and car.dist_ball < 25000 and match.duration - car.lasthit >= 1:
+            if car.dist_ball is not None and car.dist_ball < 300 and match.duration - car.lasthit >= 1:
                 car.hit = True
                 car.scoreboard['hits'] = car.scoreboard['hits'] + 1
                 car.lasthit = match.duration

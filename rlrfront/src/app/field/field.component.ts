@@ -212,7 +212,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
         }
       });
 
-      if (frame.teams['red'].score > this.previousRedScore) {
+      if (frame.teams['red'] && frame.teams['red'].score > this.previousRedScore) {
         this.previousRedScore = frame.teams['red'].score;
         this.goals.push({
           team: Team.RED,
@@ -221,7 +221,7 @@ export class FieldComponent implements OnInit, AfterViewInit {
           offset: this.getGoalMargin(frameIndex)
         });
       }
-      if (frame.teams['blue'].score > this.previousBlueScore) {
+      if (frame.teams['blue'] && frame.teams['blue'].score > this.previousBlueScore) {
         this.previousBlueScore = frame.teams['blue'].score;
         this.goals.push({
           team: Team.BLUE,
